@@ -6,7 +6,7 @@ the Dota install and replaced by a junction, so relative links break).
 
 | File | Use | Size | Status |
 | --- | --- | --- | --- |
-| `loading-screen.jpg` | Loading screen background (master) | 2752x1536 | Final v1; the game copy is resized to 1920x1080 |
+| `loading-screen.jpg` | Loading screen background (master) | 2752x1536 | Final v1; game copy: `content/panorama/images/custom_game/loading_screen/background.jpg` (1920x1080) |
 | `workshop-preview.jpg` | Workshop preview image (master) | 2048x2048 | Final v1 |
 
 Guidelines:

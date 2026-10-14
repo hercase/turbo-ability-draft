@@ -1,0 +1,10 @@
+<root>
+    <styles>
+        <include src="file://{resources}/styles/custom_game/custom_loading_screen.css" />
+    </styles>
+
+    <Panel class="LoadingScreenRoot">
+        <!-- Fixed 16:9 panel: narrower screens crop the sides instead of stretching the art. -->
+        <Panel id="LoadingBackground" />
+    </Panel>
+</root>
