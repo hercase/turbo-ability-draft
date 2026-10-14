@@ -58,8 +58,9 @@ npm run abilities:diff -- --npc-dir <folder>  # or from an extracted scripts/npc
 npm run abilities:diff -- --update            # accept the changes and rewrite the snapshot
 ```
 
-It lists added, removed and renamed abilities (renames are matched by ability ID), and config entries
-that point to abilities that no longer exist. It exits with code 1 when something changed.
+It lists added, removed and renamed abilities (renames are matched by ability ID), changes to each
+hero's official Ability Draft pool, and config entries that point to abilities that no longer exist.
+It exits with code 1 when something changed. Run it after every Dota patch.
 
 ## Repository layout
 

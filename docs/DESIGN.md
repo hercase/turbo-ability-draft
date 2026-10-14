@@ -30,10 +30,56 @@ Both modes ship in the first release and are chosen by vote during the setup pha
 
 ## Draft
 
+Goal: stay as faithful as possible to Dota's official Ability Draft (pool, rules, screens) and extend
+it with Turbo rules, instead of inventing a new draft.
+
 - Each player starts with a random hero.
-- Picks are simultaneous, with short timers.
 - Each player ends with **3 regular abilities + 1 ultimate**.
+- The pool follows the official rules (see below), built from Valve's own data at runtime.
+- Pick order is **undecided** (`draft.pickMode` is `null`):
+  - **A. Snake** (faithful): official order and 7-second turns; about 6.5 minutes in total.
+  - **B. Simultaneous rounds** (proposed): same pool and screen, but 4 rounds where everyone picks
+    at once; when two players want the same ability, the one earlier in the snake order wins. About
+    1.5-2 minutes, closer to Turbo pacing.
 - The detailed flow (states and Panorama UI) is proposed separately before any code is written.
+
+## Official Ability Draft reference
+
+Source: [Dota 2 Wiki, Ability Draft](https://dota2.fandom.com/wiki/Ability_Draft) (read 2026-10-14),
+cross-checked against the game files of the Dota client (SteamTracking mirror, 2026-10-13).
+
+- **Pool**: every player gets a random hero with no abilities. The pool holds the abilities of those
+  10 heroes plus 2 extra heroes that are not played: 48 regular abilities and 12 ultimates, on a
+  shared board.
+- If a hero has an unavailable ability, a replacement ability from another random hero is added.
+  Only one hero needing a replacement can be in the pool.
+- **Order**: player slots are shuffled within each team. 4 picking phases; phases 1 and 3 go
+  R1 D1 R2 D2 ... R5 D5, phases 2 and 4 go D5 R5 ... D1 R1.
+- **Timing**: 60 s planning (everyone sees heroes and pool), 7 s per pick (the full 7 s always
+  elapse), 5 s break after each phase, then 5 s and a 30 s strategy phase. Total 6:35.
+  A player who does not pick gets a random ability from the remaining pool.
+- **Limits**: up to 3 regular abilities and 1 ultimate per player.
+- **Talents**: talents tied to abilities the hero did not draft become instant gold
+  (250 / 500 / 750 / 1250 by tier). A few unique talents stay.
+- **Engine adaptations** (not available to custom games for free): Invoker's 10 `_ad` abilities (3
+  random per draft, Quas/Wex/Exort become passive buffs), abilities using several slots (only
+  ultimates may use up to 3 slots), Aghanim's Scepter/Shard abilities bound to drafted ultimates, and
+  per-ability fixes (e.g. Meepo's Poof cast range, Lich's Sinister Gaze).
+- Unavailable abilities listed by the wiki include Tempest Double, Divided We Stand, Morph,
+  Multicast, Spell Steal and Invoke.
+
+## Valve data we rely on
+
+- Hero files `scripts/npc/heroes/npc_dota_hero_*.txt` hold each hero and, under
+  `AbilityDefinitions`, its abilities. `npc_abilities.txt` only holds generic abilities. Ability IDs
+  live in `npc_ability_ids.txt` (`DOTAAbilityIDs > UnitAbilities > Locked`).
+- Each hero has an **`AbilityDraftAbilities`** block listing the abilities it brings to the official
+  pool. Excluded abilities are simply missing (e.g. Ogre Magi lists Fireblast, Ignite, Bloodlust but
+  not Multicast). There is no `AbilityDraftDisabled` flag.
+- **`AbilityDraftExtraAbilities`** (inside ability definitions) binds Scepter/Shard abilities to an
+  ability, e.g. `"crystal_maiden_crystal_clone" "shard"`. `AbilityDraftUltShardAbility` also exists.
+- Runtime access: `GetUnitKeyValuesByName`, `GetAbilityKeyValuesByName` and `LoadKeyValues` exist
+  in the vscripts API. Prefer the first two: they do not depend on how Valve splits its files.
 
 ## Turbo rules
 
@@ -51,20 +97,22 @@ Exact values must be checked against the current patch before implementation. Un
   the config with a reason for each entry.
 - **Overrides**: balance changes for abilities that break the game. Configured per ability with a
   reason.
-- Starting point: the exclusions used by Valve's official Ability Draft. Where possible these are read
-  from Valve's own KV flags at runtime instead of being copied (see `abilities.honorValveAbilityDraftFlags`).
-  The list grows from playtests.
+- Starting point: Valve's official pool, read at runtime from each hero's `AbilityDraftAbilities`
+  (`abilities.useValveDraftPool`), so Valve's exclusions apply without copying them. Our blacklist
+  is applied on top and grows from playtests.
 
 ## Patch resilience
 
-- Read Dota's base data at runtime with `LoadKeyValues`. Never copy Valve's KV data into the repo.
+- Read Dota's base data at runtime (`GetUnitKeyValuesByName`, `GetAbilityKeyValuesByName`). Never copy
+  Valve's KV data into the repo.
 - All our rules, exclusions and overrides live in a single file:
   [`src/vscripts/config/game_config.json`](../src/vscripts/config/game_config.json). It is plain JSON so
   both the game scripts (compiled by TSTL) and Node tooling can read it.
-- `npm run abilities:diff` compares the current Dota ability list against a committed snapshot of
-  ability **names and IDs only** (`src/vscripts/config/ability_snapshot.json`) and reports added,
-  removed and renamed abilities, plus config entries that point to abilities that no longer exist.
-  Renames are detected by matching the ability `ID`.
+- `npm run abilities:diff` compares the current Dota data against a committed snapshot holding only
+  **ability names, IDs and each hero's official draft pool** (`src/vscripts/config/ability_snapshot.json`).
+  It reports added, removed and renamed abilities (matched by ID), draft pool changes, and config
+  entries that point to abilities that no longer exist. The first snapshot was generated from the
+  SteamTracking mirror (2026-10-13); regenerate it from the local install once on Windows.
 
 ## Panorama UI (Valve docs)
 
@@ -87,6 +135,17 @@ From the Valve wiki page "Custom UI Manifest" (last edited 2026-04-13):
 Consequences for us: the mode vote fits in a `GameSetup` element, the draft could live in a
 `HeroSelection` element (instead of a stretched pre-game), and `GameInfo` can explain the rules.
 
+## Similar mods (ideas only, no code)
+
+- keymil's "ABILITY DRAFT TURBO 10vs10" (Workshop, about 22k subscribers, monetized): drafts 3
+  regular + 1 ultimate, then innate + an extra facet, then talents. Its Turbo: -25% cooldowns and
+  mana costs, 2x gold and XP, -50% respawn and buyback cooldown. Periodic ability upgrades every
+  4 minutes and Golden Treasures every 6 minutes. Its values are its own, not Valve's Turbo.
+- Lozrantekh's "Ability Draft Turbo for Friends": a re-upload of keymil's mod, published without a
+  license. Not usable.
+- The name "Turbo Ability Draft" is very close to keymil's; consider a distinct display name before
+  publishing.
+
 ## Rules for the codebase
 
 - Original code only. Other mods (keymil's, Lozrantekh's fork, Legends of Dota, Poelsemix) may be
@@ -99,7 +158,10 @@ Consequences for us: the mode vote fits in a `GameSetup` element, the draft coul
 
 Decide before implementing:
 
-- [ ] Do innate abilities, facets and talents enter the draft?
+- [ ] Pick order: snake (A) or simultaneous rounds (B)? See "Draft".
+- [ ] Do innate abilities, facets and talents enter the draft? (The official mode turns unrelated
+      talents into gold.)
+- [ ] Display name for the Workshop (see "Similar mods").
 - [ ] Kills to win in Solo Mid for each team size (1v1 / 2v2 / 3v3).
 
 ## Unverified assumptions
@@ -117,6 +179,10 @@ Check before relying on them:
       The wiki (2026-04) still references `team_select.xml` and `multiteam_top_scoreboard.xml`; confirm
       in game.
 - [ ] State of the Arcade servers. Local testing comes first.
-- [ ] Layout of Dota's ability data (single `npc_abilities.txt` vs. per-hero files pulled in with `#base`).
-      The diff script's KV reader handles both.
-- [ ] Names of Valve's Ability Draft KV flags (e.g. `AbilityDraftDisabled`).
+- [x] Layout of Dota's ability data: per-hero files with `AbilityDefinitions`, IDs in
+      `npc_ability_ids.txt` (checked against the 2026-10-13 client files).
+- [x] Valve's Ability Draft KV data: `AbilityDraftAbilities`, `AbilityDraftExtraAbilities`,
+      `AbilityDraftUltShardAbility`; no `AbilityDraftDisabled` flag.
+- [ ] `GetUnitKeyValuesByName` returns the `AbilityDraftAbilities` block in game.
+- [ ] Whether a custom game can run on top of Valve's official Ability Draft mode (its UI and engine
+      adaptations) and only add Turbo rules. Test on Windows before building our own draft screen.
