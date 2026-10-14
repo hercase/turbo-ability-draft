@@ -1,11 +1,12 @@
-// Compares Dota's current abilities and official Ability Draft pool against the committed snapshot.
-// Reports added, removed and renamed abilities, changes to each hero's draft pool, and config
-// entries that reference abilities that no longer exist.
+// Compares Dota's current version, abilities and official Ability Draft pool against the committed
+// snapshot. Reports Dota version changes, added, removed and renamed abilities, changes to each
+// hero's draft pool, and config entries that reference abilities that no longer exist.
 //
 // Usage:
-//   npm run abilities:diff                       read from the local Dota install (pak01_dir.vpk)
-//   npm run abilities:diff -- --npc-dir <dir>    read from an extracted scripts/npc folder
-//   npm run abilities:diff -- --update           also rewrite the snapshot
+//   npm run abilities:diff                        read from the local Dota install
+//   npm run abilities:diff -- --game-dir <dir>    read from a folder laid out like `game/dota`:
+//                                                 steam.inf plus an extracted pak01_dir/ folder
+//   npm run abilities:diff -- --update            also rewrite the snapshot
 //
 // Exits with code 1 when there are differences and --update was not passed.
 //
@@ -23,50 +24,87 @@ const CONFIG_FILE = path.join(CONFIG_DIR, "game_config.json");
 const SNAPSHOT_FILE = path.join(CONFIG_DIR, "ability_snapshot.json");
 
 const NPC = "scripts/npc";
+const PATCH_NOTES = "resource/localization/patchnotes/patchnotes_english.txt";
 const NON_ABILITY_KEYS = new Set(["Version", "ability_base", "dota_base_ability"]);
 
 function parseArgs(argv) {
-    const args = { update: false, npcDir: undefined };
+    const args = { update: false, gameDir: undefined };
     for (let i = 0; i < argv.length; i++) {
         if (argv[i] === "--update") args.update = true;
-        else if (argv[i] === "--npc-dir") args.npcDir = argv[++i];
+        else if (argv[i] === "--game-dir") args.gameDir = argv[++i];
         else throw new Error(`Unknown argument '${argv[i]}'`);
     }
     return args;
 }
 
 /**
- * Returns an object that reads game files by path relative to the `dota` game folder
- * (e.g. "scripts/npc/npc_abilities.txt") and lists the files of a folder.
+ * Returns an object that reads packed game files by path (e.g. "scripts/npc/npc_abilities.txt"),
+ * lists the files of a packed folder, and reads steam.inf, which sits next to the VPK.
  */
-async function createFileSource(npcDir) {
-    if (npcDir !== undefined) {
-        const root = path.resolve(npcDir);
-        const toLocal = gamePath => path.join(root, path.posix.relative(NPC, gamePath));
+async function createFileSource(gameDir) {
+    if (gameDir !== undefined) {
+        const root = path.resolve(gameDir);
+        const toLocal = gamePath => path.join(root, "pak01_dir", gamePath);
         return {
             description: root,
+            steamInf: readIfExists(path.join(root, "steam.inf")),
             read: gamePath => {
                 const file = toLocal(gamePath);
                 return fs.existsSync(file) ? fs.readFileSync(file, "utf8") : undefined;
             },
-            list: gameDir => {
-                const dir = toLocal(gameDir);
-                return fs.existsSync(dir) ? fs.readdirSync(dir).map(name => path.posix.join(gameDir, name)) : [];
+            list: packedDir => {
+                const dir = toLocal(packedDir);
+                return fs.existsSync(dir) ? fs.readdirSync(dir).map(name => path.posix.join(packedDir, name)) : [];
             },
         };
     }
 
     const dotaPath = await getDotaPath();
     if (dotaPath === undefined) {
-        throw new Error("No Dota 2 installation found. Pass --npc-dir <extracted scripts/npc folder>.");
+        throw new Error("No Dota 2 installation found. Pass --game-dir <folder with steam.inf and pak01_dir/>.");
     }
-    const vpkFile = path.join(dotaPath, "game", "dota", "pak01_dir.vpk");
-    const vpk = new VpkReader(vpkFile);
+    const gameRoot = path.join(dotaPath, "game", "dota");
+    const vpk = new VpkReader(path.join(gameRoot, "pak01_dir.vpk"));
     return {
-        description: vpkFile,
+        description: gameRoot,
+        steamInf: readIfExists(path.join(gameRoot, "steam.inf")),
         read: gamePath => vpk.read(gamePath)?.toString("utf8"),
-        list: gameDir => vpk.list(gameDir),
+        list: packedDir => vpk.list(packedDir),
     };
+}
+
+function readIfExists(file) {
+    return fs.existsSync(file) ? fs.readFileSync(file, "utf8") : undefined;
+}
+
+/** Latest gameplay patch named in the patch notes (e.g. "7.41f") plus the client build from steam.inf. */
+function readDotaVersion(source) {
+    let patch = null;
+    const notes = source.read(PATCH_NOTES);
+    if (notes !== undefined) {
+        const patches = new Set([...notes.matchAll(/"DOTA_Patch_(\d+)_(\d+)([a-z]?)_/g)].map(m => `${m[1]}.${m[2]}${m[3]}`));
+        patch = [...patches].sort(comparePatches).pop() ?? null;
+    }
+
+    const inf = Object.fromEntries(
+        (source.steamInf ?? "").split(/\r?\n/).map(line => line.split("=")).filter(parts => parts.length === 2),
+    );
+    return {
+        patch,
+        build: inf.ClientVersion !== undefined ? Number(inf.ClientVersion) : null,
+        date: inf.VersionDate ?? null,
+    };
+}
+
+function comparePatches(a, b) {
+    const parse = v => v.match(/^(\d+)\.(\d+)([a-z]?)$/).slice(1);
+    const [aMajor, aMinor, aLetter] = parse(a);
+    const [bMajor, bMinor, bLetter] = parse(b);
+    return Number(aMajor) - Number(bMajor) || Number(aMinor) - Number(bMinor) || aLetter.localeCompare(bLetter);
+}
+
+function formatVersion(version) {
+    return `${version.patch ?? "unknown patch"} (build ${version.build ?? "?"}${version.date ? `, ${version.date}` : ""})`;
 }
 
 function readKV(source, gamePath) {
@@ -111,7 +149,7 @@ function loadGameData(source) {
     for (const name of [...abilityNames].sort()) {
         abilities[name] = ids[name] !== undefined ? Number(ids[name]) : null;
     }
-    return { abilities, draftPool: sortKeys(draftPool) };
+    return { dota: readDotaVersion(source), abilities, draftPool: sortKeys(draftPool) };
 }
 
 function sortKeys(object) {
@@ -161,14 +199,15 @@ function findStaleConfigEntries(config, abilities) {
 
 (async () => {
     const args = parseArgs(process.argv.slice(2));
-    const source = await createFileSource(args.npcDir);
+    const source = await createFileSource(args.gameDir);
     const current = loadGameData(source);
     const config = JSON.parse(fs.readFileSync(CONFIG_FILE, "utf8"));
     const snapshot = fs.existsSync(SNAPSHOT_FILE) ? JSON.parse(fs.readFileSync(SNAPSHOT_FILE, "utf8")) : undefined;
 
     const abilityCount = Object.keys(current.abilities).length;
     const heroCount = Object.keys(current.draftPool).length;
-    console.log(`Read ${abilityCount} abilities and ${heroCount} hero draft pools from ${source.description}`);
+    console.log(`Dota ${formatVersion(current.dota)}: ${source.description}`);
+    console.log(`Read ${abilityCount} abilities and ${heroCount} hero draft pools`);
 
     let changeCount = 0;
     const print = (title, lines) => {
@@ -182,6 +221,10 @@ function findStaleConfigEntries(config, abilities) {
         console.log("No snapshot yet. Run with --update to create it.");
         changeCount++;
     } else {
+        const before = snapshot.dota ?? {};
+        if (before.patch !== current.dota.patch || before.build !== current.dota.build) {
+            print("Dota version", [`${formatVersion(before)} -> ${formatVersion(current.dota)}`]);
+        }
         const { added, removed, renamed } = diffAbilities(snapshot.abilities, current.abilities);
         print("Added abilities", added);
         print("Removed abilities", removed);

@@ -1,4 +1,9 @@
 {
+    "dota": {
+        "patch": "7.41f",
+        "build": 6958,
+        "date": "Oct 12 2026"
+    },
     "abilities": {
         "abaddon_aphotic_shield": 5586,
         "abaddon_borrowed_time": 5588,
