@@ -73,9 +73,9 @@ Closes #<issue>
   three, and lefthook runs them as git hooks (lint, format and type-check on commit, commitlint on the
   message, full checks on push). Do not bypass hooks with `--no-verify`. Use `npm run format` and
   `npm run lint:fix` to fix most issues automatically.
-- In vscripts, import order is execution order in Lua. Files whose imports have side effects (such as
-  `addon_game_mode.ts` loading Timers) start with `// organize-imports-ignore` so Prettier's
-  organize-imports plugin keeps their order.
+- In vscripts, import order is execution order in Lua (decorators that register abilities and
+  modifiers also run on import). Do not add tools that reorder imports automatically, and keep
+  libraries with side effects (such as Timers) imported first.
 - Generated output (`game/`, compiled Panorama JS) and third-party code (`src/vscripts/lib/`) are
   excluded from linting and formatting; do not reformat them. Markdown is formatted by hand.
 - Panorama functions called from XML (e.g. `onactivate`) must be named `On<Something>`; the linter
