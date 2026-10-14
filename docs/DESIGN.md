@@ -8,7 +8,7 @@ Update it whenever a decision is made or changed.
 Each player builds one hero through an ability draft, played under Turbo rules. A second mode, based on
 Dota's official "Mid Only" mode, is planned.
 
-- Display name: **Turbo Ability Draft**
+- Display name and Workshop title: **Turbo Ability Draft** (decided 2026-10-14, see "Workshop name").
 - Addon name: `turbo_ability_draft` (Valve requires lowercase, digits and underscores)
 - Base: [ModDota/TypeScriptAddonTemplate](https://github.com/ModDota/TypeScriptAddonTemplate) (MIT).
 - License: proprietary, all rights reserved. Third-party code (ModDota template, barebones timers) is
@@ -218,13 +218,39 @@ Scepter/Shard upgrades behind Ctrl+Alt. Ability Arena shut down after Valve bann
 (Aug 2023) because it had server costs, so avoid paid backends. Valve can pull Workshop items without
 notice (Overthrow 3.0, Jul 2026): keep backups and a community channel.
 
+## Workshop name
+
+Decision (2026-10-14): **Turbo Ability Draft**, with no patch number in the title.
+
+- Keeps both official mode names (Turbo + Ability Draft), which is what players search for.
+- No patch number: the Arcade list already shows "Updated <time>" next to every title, and the game
+  page has an UPDATES section with dated notes. None of the top 10 Arcade games puts a version in its
+  title, and long titles get cut off.
+- Optional short subtitle explaining the mode, as the top Arcade game does ("OMG 4+2: New ability
+  draft"), e.g. "Turbo Ability Draft: Official rules". Undecided, can be added at any time.
+- Our version and the Dota patch go in the Workshop Change Log (shown under UPDATES) and, later, in
+  the in-game GameInfo tab.
+- Titles can be edited on any update without losing the item ID, link, subscribers or comments; keep
+  the base name stable.
+
+Arcade "Active Games" on 2026-10-14 (players now): OMG 4+2: New ability draft 24,308; DOTA AUTO CHESS
+15,091; Custom Hero Chaos 4,952; Guarding Athena 3,824; Dota 1x6 2,735. An ability draft mode is the
+most played custom game; keymil's mod is not in the top 10.
+
+Findings from the Workshop's top 90 custom games by subscribers (2026-10-14): short names that say
+what the mode is (Overthrow, Pudge Wars, Dota Run), "Dota" + concept (Dota IMBA, Dota 10v10), an
+explanatory subtitle ("Pudge Wars (1 hook = 1 kill)"), and a patch number (Legends of Dota 7.41).
+Ability-building modes have demand: DOTA OMG 4+2 has 2.1M subscribers and Legends of Dota 1.3M;
+keymil's mod has 22k. "Ability Draft Reborn" is already taken (102k, abandoned since 2016).
+
 ## Similar mods (ideas only, no code)
 
 - Custom Hero Chaos (long-running top Arcade mode): limited agency (1 hero ban, 1 skill ban,
   rerolls) plus comeback tokens keep an unbalanced game fun.
 - Legends of Dota Redux: ability/hero bans, blocked troll combos, a point-budget balance mode and a
   separate "all allowed" map.
-
+- OMG 4+2 ("New ability draft"): the most played Arcade game on 2026-10-14 (24k players). Study how
+  its draft screen and pacing work (ideas only).
 - keymil's "ABILITY DRAFT TURBO 10vs10" (Workshop, about 22k subscribers, monetized): drafts 3
   regular + 1 ultimate, then innate + an extra facet, then talents. Its Turbo: -25% cooldowns and
   mana costs, 2x gold and XP, -50% respawn and buyback cooldown. Periodic ability upgrades every
@@ -234,9 +260,8 @@ notice (Overthrow 3.0, Jul 2026): keep backups and a community channel.
 - keymil's mod is active as of 2026-10-14: 22,111 Workshop subscribers, a Discord with 2,495 members
   (621 online), updates through April 2026.
 - The name "Turbo Ability Draft" (Turbo + Ability Draft, the two official modes combined) is very close
-  to keymil's. Both words are generic Dota terms, so it can stay; the difference has to come from the
-  positioning. Alternatives that keep both words: "Turbo Ability Draft: Classic", "Turbo Ability Draft
-  Reborn".
+  to keymil's. Both words are generic Dota terms, so it stays; the difference comes from the
+  positioning (see "Positioning" and "Workshop name").
 
 ## Rules for the codebase
 
@@ -250,8 +275,7 @@ notice (Overthrow 3.0, Jul 2026): keep backups and a community channel.
 
 Decide before implementing:
 
-- [ ] Display name for the Workshop: keep "Turbo Ability Draft" or add a suffix (see "Similar mods").
-      Check keymil's active player count in the Arcade first.
+- [ ] Optional Workshop subtitle (see "Workshop name"). Not blocking.
 
 ## Unverified assumptions
 

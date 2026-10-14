@@ -84,7 +84,9 @@ game at runtime. Engine or API changes can only be caught by playing. After each
 4. Check the patch notes for Turbo changes that affect our Turbo values.
 5. Run `npm run abilities:diff -- --update`, bump the version, and commit
    (`chore: update to Dota 7.xx`).
-6. Re-publish to the Workshop only if something changed.
+6. Re-publish to the Workshop only if something changed, with our version, the Dota patch and the
+   changes in the Change Log field (e.g. `v0.3.0 - Dota 7.42 - reconnect support`). The Arcade
+   shows these notes under UPDATES and "Updated <date>" next to the title.
 
 ## Repository layout
 
