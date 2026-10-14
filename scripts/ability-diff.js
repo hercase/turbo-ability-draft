@@ -82,12 +82,17 @@ function readDotaVersion(source) {
     let patch = null;
     const notes = source.read(PATCH_NOTES);
     if (notes !== undefined) {
-        const patches = new Set([...notes.matchAll(/"DOTA_Patch_(\d+)_(\d+)([a-z]?)_/g)].map(m => `${m[1]}.${m[2]}${m[3]}`));
+        const patches = new Set(
+            [...notes.matchAll(/"DOTA_Patch_(\d+)_(\d+)([a-z]?)_/g)].map(m => `${m[1]}.${m[2]}${m[3]}`),
+        );
         patch = [...patches].sort(comparePatches).pop() ?? null;
     }
 
     const inf = Object.fromEntries(
-        (source.steamInf ?? "").split(/\r?\n/).map(line => line.split("=")).filter(parts => parts.length === 2),
+        (source.steamInf ?? "")
+            .split(/\r?\n/)
+            .map(line => line.split("="))
+            .filter(parts => parts.length === 2),
     );
     return {
         patch,
@@ -134,7 +139,8 @@ function loadGameData(source) {
     for (const file of heroFiles) {
         const heroes = readKV(source, file)?.DOTAHeroes ?? {};
         for (const [hero, data] of Object.entries(heroes)) {
-            if (typeof data !== "object" || !hero.startsWith("npc_dota_hero_") || hero === "npc_dota_hero_base") continue;
+            if (typeof data !== "object" || !hero.startsWith("npc_dota_hero_") || hero === "npc_dota_hero_base")
+                continue;
             addAbilities(data.AbilityDefinitions);
             if (typeof data.AbilityDraftAbilities === "object") {
                 draftPool[hero] = Object.values(data.AbilityDraftAbilities);
@@ -182,7 +188,8 @@ function diffDraftPool(previous, current) {
         const after = current[hero];
         if (before === undefined) changes.push(`${hero}: added [${after.join(", ")}]`);
         else if (after === undefined) changes.push(`${hero}: removed`);
-        else if (before.join() !== after.join()) changes.push(`${hero}: [${before.join(", ")}] -> [${after.join(", ")}]`);
+        else if (before.join() !== after.join())
+            changes.push(`${hero}: [${before.join(", ")}] -> [${after.join(", ")}]`);
     }
     return changes.sort();
 }

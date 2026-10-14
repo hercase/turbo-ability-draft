@@ -75,7 +75,10 @@ class VpkReader {
             const start = this.dataOffset + entry.offset;
             data = this.buffer.subarray(start, start + entry.length);
         } else {
-            const archive = this.directoryFile.replace(/_dir\.vpk$/i, `_${String(entry.archiveIndex).padStart(3, "0")}.vpk`);
+            const archive = this.directoryFile.replace(
+                /_dir\.vpk$/i,
+                `_${String(entry.archiveIndex).padStart(3, "0")}.vpk`,
+            );
             const fd = fs.openSync(archive, "r");
             try {
                 data = Buffer.alloc(entry.length);
