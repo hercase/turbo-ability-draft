@@ -1,14 +1,15 @@
 {
     "version": 1,
     "draft": {
-        "heroSelection": null,
-        "pickMode": null,
+        "heroSelection": "draft",
+        "pickMode": "snake",
         "regularAbilities": 3,
         "ultimates": 1,
         "extraPoolHeroes": 2,
-        "pickTimeSeconds": null,
-        "includeInnates": null,
-        "includeTalents": null
+        "planningSeconds": 60,
+        "pickTimeSeconds": 7,
+        "phaseBreakSeconds": 5,
+        "strategySeconds": 30
     },
     "turbo": {
         "goldMultiplier": null,

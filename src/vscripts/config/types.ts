@@ -14,17 +14,18 @@ export interface GameConfig {
 }
 
 export interface DraftConfig {
-    /** "random": each player gets a random hero. "draft": the hero is one of the picks (official since 7.39). Undecided. */
-    heroSelection: "random" | "draft" | null;
-    /** "snake": official turn order. "simultaneous": everyone picks each round at once. Undecided. */
-    pickMode: "snake" | "simultaneous" | null;
+    /** "draft": the hero is one of the picks (official since 7.39). "random": one random hero per player. */
+    heroSelection: "random" | "draft";
+    /** "snake": official turn order. "simultaneous": everyone picks each round at once. */
+    pickMode: "snake" | "simultaneous";
     regularAbilities: number;
     ultimates: number;
     /** Heroes whose abilities join the pool without being played (official Ability Draft uses 2). */
     extraPoolHeroes: number;
-    pickTimeSeconds: number | null;
-    includeInnates: boolean | null;
-    includeTalents: boolean | null;
+    planningSeconds: number;
+    pickTimeSeconds: number;
+    phaseBreakSeconds: number;
+    strategySeconds: number;
 }
 
 export interface TurboConfig {

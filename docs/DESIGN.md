@@ -30,19 +30,18 @@ Both modes ship in the first release and are chosen by vote during the setup pha
 
 ## Draft
 
-Goal: stay as faithful as possible to Dota's official Ability Draft (pool, rules, screens) and extend
-it with Turbo rules, instead of inventing a new draft.
+**Decision (2026-10-14): the draft is identical to Dota's current official Ability Draft**: same
+pool, hero drafting, pick order, timings, limits, innate and talent rules, and screens. Our mode
+adds Turbo rules on top; the draft itself is not reinvented.
 
-- Hero selection is **undecided** (`draft.heroSelection` is `null`): a random hero per player (the
-  original plan, and the official rule before 7.39) or drafting the hero as one of the picks (the
-  official rule since 7.39). It could also be a lobby option.
+- The hero is drafted as one of the picks (official rule since 7.39).
 - Each player ends with **3 regular abilities + 1 ultimate**.
-- The pool follows the official rules (see below), built from Valve's own data at runtime.
-- Pick order is **undecided** (`draft.pickMode` is `null`):
-  - **A. Snake** (faithful): official order and 7-second turns; about 6.5 minutes in total.
-  - **B. Simultaneous rounds** (proposed): same pool and screen, but 4 rounds where everyone picks
-    at once; when two players want the same ability, the one earlier in the snake order wins. About
-    1.5-2 minutes, closer to Turbo pacing.
+- Snake pick order and official timings (`draft` section of the config). The timings in the config
+  come from the pre-7.39 rules and must be checked against the current official mode, which added
+  the hero pick.
+- Innate abilities and talents follow the official rules (unrelated talents become gold).
+- Faster alternatives (simultaneous rounds, random hero) remain possible as config options
+  (`pickMode`, `heroSelection`) but are not the default.
 - The detailed flow (states and Panorama UI) is proposed separately before any code is written.
 
 ## Official Ability Draft reference
@@ -156,7 +155,7 @@ Consequences for us: the mode vote fits in a `GameSetup` element, the draft coul
 From a research pass on 2026-10-14 (player complaints, similar mods, third-party AD tools). Nothing
 here is decided; each item needs a design before implementation. Effort S/M/L, impact in brackets.
 
-- **Fast draft** (S, high): official AD is seen as slow and its queues are empty; players ask for
+- **Fast draft as an optional lobby setting** (S, high; the default stays official): official AD is seen as slow and its queues are empty; players ask for
   Turbo AD and Valve has not built it ([Steam thread](https://steamcommunity.com/app/570/discussions/0/594017161232565803)).
 - **Bots fill empty slots** (L, high), so a lobby never stalls; Arcade lobbies suffer from bots and
   low counts.
@@ -205,10 +204,6 @@ here is decided; each item needs a design before implementation. Effort S/M/L, i
 
 Decide before implementing:
 
-- [ ] Pick order: snake (A) or simultaneous rounds (B)? See "Draft".
-- [ ] Hero selection: random hero or drafted hero (official since 7.39)? See "Draft".
-- [ ] Do innate abilities and talents enter the draft? (The official mode turns unrelated talents
-      into gold. Facets were removed in 7.41.)
 - [ ] Display name for the Workshop (see "Similar mods").
 - [ ] Kills to win in Solo Mid for each team size (1v1 / 2v2 / 3v3).
 
@@ -232,5 +227,7 @@ Check before relying on them:
 - [x] Valve's Ability Draft KV data: `AbilityDraftAbilities`, `AbilityDraftExtraAbilities`,
       `AbilityDraftUltShardAbility`; no `AbilityDraftDisabled` flag.
 - [ ] `GetUnitKeyValuesByName` returns the `AbilityDraftAbilities` block in game.
+- [ ] Current official draft details after 7.39: number of phases, pick timer, when the hero pick
+      happens, and how the hero pool is built. Play or watch a current Ability Draft match.
 - [ ] Whether a custom game can run on top of Valve's official Ability Draft mode (its UI and engine
       adaptations) and only add Turbo rules. Test on Windows before building our own draft screen.
