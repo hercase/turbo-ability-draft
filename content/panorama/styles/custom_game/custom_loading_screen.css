@@ -1,0 +1,16 @@
+.LoadingScreenRoot {
+    width: 100%;
+    height: 100%;
+    background-color: black;
+    overflow: clip;
+}
+
+#LoadingBackground {
+    horizontal-align: center;
+    vertical-align: center;
+    height: 100%;
+    width: height-percentage(177.778%);
+    background-image: url("file://{images}/custom_game/loading_screen/background.jpg");
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+}

@@ -8,18 +8,32 @@ export interface GameConfig {
     turbo: TurboConfig;
     modes: {
         classic: { enabled: boolean };
-        solo_mid: { enabled: boolean; killsToWin: Record<"1v1" | "2v2" | "3v3", number | null> };
+        mid_only: MidOnlyConfig;
     };
     abilities: AbilityRules;
 }
 
+/** Based on Dota's official "Mid Only" mode: default map, creeps only in the middle lane. */
+export interface MidOnlyConfig {
+    enabled: boolean;
+    teamSizes: number[];
+    /** "ancient": official Mid Only rule (default). A kill race may come later as a lobby option. */
+    winCondition: "ancient";
+}
+
 export interface DraftConfig {
+    /** "draft": the hero is one of the picks (official since 7.39). "random": one random hero per player. */
+    heroSelection: "random" | "draft";
+    /** "snake": official turn order. "simultaneous": everyone picks each round at once. */
+    pickMode: "snake" | "simultaneous";
     regularAbilities: number;
     ultimates: number;
+    /** Heroes whose abilities join the pool without being played (official Ability Draft uses 2). */
+    extraPoolHeroes: number;
+    planningSeconds: number;
     pickTimeSeconds: number;
-    includeInnates: boolean | null;
-    includeFacets: boolean | null;
-    includeTalents: boolean | null;
+    phaseBreakSeconds: number;
+    strategySeconds: number;
 }
 
 export interface TurboConfig {
@@ -32,8 +46,11 @@ export interface TurboConfig {
 }
 
 export interface AbilityRules {
-    /** Skip abilities that Valve's own Ability Draft marks as disabled in its KV data. */
-    honorValveAbilityDraftFlags: boolean;
+    /**
+     * Build each hero's pool from Valve's "AbilityDraftAbilities" hero KV block, which already leaves
+     * out abilities the official mode excludes. The blacklist is applied on top.
+     */
+    useValveDraftPool: boolean;
     /** Ability name -> reason it is excluded from the draft pool. */
     blacklist: Record<string, string>;
     /** Ability name -> balance override applied on top of Valve's KV values. */

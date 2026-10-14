@@ -1,12 +1,15 @@
 {
     "version": 1,
     "draft": {
+        "heroSelection": "draft",
+        "pickMode": "snake",
         "regularAbilities": 3,
         "ultimates": 1,
-        "pickTimeSeconds": 15,
-        "includeInnates": null,
-        "includeFacets": null,
-        "includeTalents": null
+        "extraPoolHeroes": 2,
+        "planningSeconds": 60,
+        "pickTimeSeconds": 7,
+        "phaseBreakSeconds": 5,
+        "strategySeconds": 30
     },
     "turbo": {
         "goldMultiplier": null,
@@ -20,17 +23,18 @@
         "classic": {
             "enabled": true
         },
-        "solo_mid": {
+        "mid_only": {
             "enabled": false,
-            "killsToWin": {
-                "1v1": null,
-                "2v2": null,
-                "3v3": null
-            }
+            "teamSizes": [
+                1,
+                2,
+                3
+            ],
+            "winCondition": "ancient"
         }
     },
     "abilities": {
-        "honorValveAbilityDraftFlags": true,
+        "useValveDraftPool": true,
         "blacklist": {},
         "overrides": {}
     }
