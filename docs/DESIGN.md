@@ -14,6 +14,27 @@ arena mode ("Solo Mid") is planned.
 - License: proprietary, all rights reserved. Third-party code (ModDota template, barebones timers) is
   credited in `THIRD_PARTY_NOTICES.md` with its license texts in `licenses/`.
 
+## Positioning
+
+**The official Ability Draft you already know, at Turbo speed, always up to date with the latest
+patch**, plus a quick Solo Mid arena. Free, with no donations or paid features.
+
+Target player: someone who already plays official Ability Draft and wants shorter games (players ask
+for "Turbo Ability Draft" on the Steam forums and Valve has not built it).
+
+| | keymil's "ABILITY DRAFT TURBO 10vs10" | Turbo Ability Draft |
+| --- | --- | --- |
+| Format | 10 vs 10 | 5 vs 5 |
+| Draft | Own rules (abilities, then innate + extra facet, then talents) | Identical to the current official mode |
+| Turbo | Own values | Official Turbo rules |
+| Extras | Periodic ability upgrades, Golden Treasures | Draft card info, reconnect, lobby options |
+| Other modes | None | Solo Mid (1v1 / 2v2 / 3v3) |
+| Patches | Data maintained by hand (last update April 2026) | Reads Dota's data at runtime |
+| Price | Patreon, Boosty, PayPal | Free |
+
+Suggested Workshop subtitle: "Official Ability Draft rules at Turbo speed. Always up to date with the
+latest patch."
+
 ## Modes
 
 Both modes ship in the first release and are chosen by vote during the setup phase.
@@ -150,31 +171,33 @@ From the Valve wiki page "Custom UI Manifest" (last edited 2026-04-13):
 Consequences for us: the mode vote fits in a `GameSetup` element, the draft could live in a
 `HeroSelection` element (instead of a stretched pre-game), and `GameInfo` can explain the rules.
 
-## Improvement backlog
+## Roadmap
 
-From a research pass on 2026-10-14 (player complaints, similar mods, third-party AD tools). Nothing
-here is decided; each item needs a design before implementation. Effort S/M/L, impact in brackets.
+- **v0.2**: official Ability Draft (identical rules and screens) + Turbo rules on the default map.
+- **v0.3**:
+  - Draft cards show Aghanim's Scepter/Shard upgrades and abilities that need a partner ability.
+  - Reconnect without losing hero or picks.
+  - Loading screen tips and a "GameInfo" rules tab.
+- **Lobby options** (off by default):
+  - Draft hints: synergies and win rates on the cards.
+  - Surrender vote.
+  - Catch-up mechanics: leader bounty and comeback gold.
+- **Localization**: English only for now.
+- **Solo Mid arena**: after the Classic mode is solid.
 
-- **Fast draft as an optional lobby setting** (S, high; the default stays official): official AD is seen as slow and its queues are empty; players ask for
-  Turbo AD and Valve has not built it ([Steam thread](https://steamcommunity.com/app/570/discussions/0/594017161232565803)).
-- **Bots fill empty slots** (L, high), so a lobby never stalls; Arcade lobbies suffer from bots and
-  low counts.
-- **Combo rules** (M, high): block known broken pairs and mark abilities that need a partner
-  (e.g. Eclipse without Lucent Beam). Legends of Dota Redux blocked "troll combos".
-- **Native draft hints** (M, high): synergy, strong/trap combos and win rates on the cards. Players
-  install overlays (Ability Draft Plus) because the official UI lacks this; we know the pool on the
-  server.
-- **Show Scepter/Shard upgrades on every card** (S, high): the official UI hides them behind Ctrl+Alt.
-- **Bans and rerolls** (S, med): e.g. 1 ability ban per player, 1 pool reroll per team by vote.
-- **Catch-up mechanics** (M, high): leader bounty, comeback gold; Overthrow-style deliveries in Solo Mid.
-- **Disconnect handling** (M, high): keep hero and picks, bot control while away.
-- **Conditional surrender vote** (S, med).
-- **End screen** (M, med): builds, combo spotlight, MVP.
-- **Loading screen tips and a "GameInfo" rules tab** (S, med).
-- **Localization** (M, med): EN/ES/RU/ZH/PT.
-- **No paid backend**: Ability Arena shut down after Valve banned monetization (Aug 2023) because it
-  had server costs. Valve can also pull Workshop items without notice (Overthrow 3.0, Jul 2026):
-  keep backups and a community channel.
+Decided against (2026-10-14), to stay faithful to the official mode:
+
+- No bots filling empty slots and no custom end screen (for now).
+- No bans or rerolls (the official mode has none).
+- No combo blocking (the official mode has none). A combo that breaks the game in playtests is fixed
+  with a balance override, or as a last resort with the blacklist.
+- No fast draft by default.
+
+Context from the research pass (2026-10-14): official AD is seen as slow and its queues are empty;
+players install overlays (Ability Draft Plus) for synergy and win-rate hints; the official UI hides
+Scepter/Shard upgrades behind Ctrl+Alt. Ability Arena shut down after Valve banned monetization
+(Aug 2023) because it had server costs, so avoid paid backends. Valve can pull Workshop items without
+notice (Overthrow 3.0, Jul 2026): keep backups and a community channel.
 
 ## Similar mods (ideas only, no code)
 
@@ -189,8 +212,12 @@ here is decided; each item needs a design before implementation. Effort S/M/L, i
   4 minutes and Golden Treasures every 6 minutes. Its values are its own, not Valve's Turbo.
 - Lozrantekh's "Ability Draft Turbo for Friends": a re-upload of keymil's mod, published without a
   license. Not usable.
-- The name "Turbo Ability Draft" is very close to keymil's; consider a distinct display name before
-  publishing.
+- keymil's mod is active as of 2026-10-14: 22,111 Workshop subscribers, a Discord with 2,495 members
+  (621 online), updates through April 2026.
+- The name "Turbo Ability Draft" (Turbo + Ability Draft, the two official modes combined) is very close
+  to keymil's. Both words are generic Dota terms, so it can stay; the difference has to come from the
+  positioning. Alternatives that keep both words: "Turbo Ability Draft: Classic", "Turbo Ability Draft
+  Reborn".
 
 ## Rules for the codebase
 
@@ -204,7 +231,8 @@ here is decided; each item needs a design before implementation. Effort S/M/L, i
 
 Decide before implementing:
 
-- [ ] Display name for the Workshop (see "Similar mods").
+- [ ] Display name for the Workshop: keep "Turbo Ability Draft" or add a suffix (see "Similar mods").
+      Check keymil's active player count in the Arcade first.
 - [ ] Kills to win in Solo Mid for each team size (1v1 / 2v2 / 3v3).
 
 ## Unverified assumptions
