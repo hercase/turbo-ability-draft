@@ -21,8 +21,14 @@ commit-msg:
             run: npx commitlint --edit {1}
 
 pre-push:
+    piped: true
     commands:
+        block-main:
+            priority: 1
+            run: node scripts/hooks/block-main-push.js
+            use_stdin: true
         check:
+            priority: 2
             run: npm run build && npm run lint && npm run format:check
 
 skip_output:

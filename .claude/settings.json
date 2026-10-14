@@ -2,5 +2,16 @@
     "attribution": {
         "commit": "",
         "pr": ""
+    },
+    "permissions": {
+        "deny": [
+            "Bash(git push *main)",
+            "Bash(git push *main *)",
+            "Bash(git push *--force*)",
+            "Bash(git push *-f *)",
+            "Bash(git push *-f)",
+            "Bash(git *--no-verify*)",
+            "Bash(git commit *-n *)"
+        ]
     }
 }

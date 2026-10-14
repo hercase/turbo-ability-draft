@@ -55,7 +55,13 @@ Closes #<issue>
 - **Never add `Co-Authored-By` trailers, "Generated with ..." lines, or any other AI attribution** to
   commits, PR descriptions or issues. The project's `.claude/settings.json` disables this for Claude
   Code; other tools must be configured the same way.
-- Commit only when asked. Never push to `main` without being asked.
+- Commit only when asked. **Never push to `main`**: every change reaches it through a pull request.
+  GitHub cannot enforce this on a private repo without a paid plan, so it is guarded locally:
+  - the lefthook pre-push hook (`scripts/hooks/block-main-push.js`) refuses pushes to `main`;
+  - `.claude/settings.json` denies `git push` to `main`, force pushes and `--no-verify` for Claude Code;
+  - the "Main guard" workflow fails, and GitHub emails the owner, if a commit lands on `main` without
+    a merged pull request.
+- Do not merge a pull request whose CI is red.
 
 ## Tracking work
 
