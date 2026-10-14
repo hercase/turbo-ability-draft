@@ -26,4 +26,4 @@ interface ExampleEventData {
 }
 
 // This event has no data
-interface UIPanelClosedEventData {}
+type UIPanelClosedEventData = Record<string, never>;

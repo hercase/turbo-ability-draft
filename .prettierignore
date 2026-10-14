@@ -1,0 +1,13 @@
+# Generated or Dota-owned output
+game/
+content/panorama/scripts/
+node_modules/
+package-lock.json
+src/vscripts/config/ability_snapshot.json
+
+# Third-party code and texts kept as received
+src/vscripts/lib/
+licenses/
+
+# Docs are formatted by hand (aligned tables, intentional wrapping)
+*.md
