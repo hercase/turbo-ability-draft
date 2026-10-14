@@ -11,7 +11,7 @@ Addon name: `turbo_ability_draft`. Status: early development, private.
 ## Requirements
 
 - Windows with Dota 2 and the Dota 2 Workshop Tools DLC installed.
-- Node.js 18 or newer.
+- Node.js 20.19 or newer (22 LTS recommended; CI uses 22).
 
 ## Setup
 
@@ -46,6 +46,8 @@ mklink /J "C:\Program Files (x86)\Steam\steamapps\common\dota 2 beta\content\dot
 | `npm run dev` | Compiles vscripts and Panorama and watches for changes (also `Ctrl+Shift+B` in VS Code). |
 | `npm run build` | One-off compile. CI runs this. |
 | `npm run launch` | Opens Dota 2 Workshop Tools with this addon. |
+| `npm run lint` | Lints TypeScript and Node scripts with ESLint (`lint:fix` applies automatic fixes). |
+| `npm run format` | Formats code with Prettier (`format:check` only reports). CI runs both checks. |
 | `npm run abilities:diff` | Compares Dota's current abilities with the committed snapshot (see below). |
 
 To start a game from the Dota console: `dota_launch_custom_game turbo_ability_draft dota`.
