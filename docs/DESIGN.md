@@ -166,9 +166,10 @@ Exact values must be checked against the current patch before implementation. Un
   **ability names, IDs and each hero's official draft pool** (`src/vscripts/config/ability_snapshot.json`).
   It reports added, removed and renamed abilities (matched by ID), draft pool changes, and config
   entries that point to abilities that no longer exist. The first snapshot was generated from the
-  SteamTracking mirror (2026-10-13); regenerate it from the local install once on Windows.
+  SteamTracking mirror (2026-10-13, build 6958). Regenerating it from the local Windows install
+  (2026-10-14, build 6960) changed only the build number: abilities, IDs and draft pools matched.
 - The snapshot also records the Dota version it was taken from (gameplay patch from the bundled patch
-  notes, client build from `steam.inf`). Current baseline: **Dota 7.41f, build 6958 (Oct 12 2026)**.
+  notes, client build from `steam.inf`). Current baseline: **Dota 7.41f, build 6960 (Oct 14 2026)**.
 - After every Dota patch follow the checklist in the README ("After a Dota patch").
 
 ## Panorama UI (Valve docs)
