@@ -1,39 +1,84 @@
-# ModDota template
+# Turbo Ability Draft
 
-A template for Dota 2 Custom Games built with modern technologies.
+A Dota 2 custom game. Each player builds one hero through an ability draft, played under Turbo rules.
+An Overthrow-style arena mode (Solo Mid) is planned.
 
-[This tutorial](https://moddota.com/scripting/Typescript/typescript-introduction/) explains how to set up and use the template.
+Addon name: `turbo_ability_draft`. Status: early development, private.
 
-The template includes:
+- Design decisions, open questions and unverified assumptions: [docs/DESIGN.md](docs/DESIGN.md)
+- Rules for contributors and AI agents: [AGENTS.md](AGENTS.md)
 
-- [TypeScript for Panorama](https://moddota.com/panorama/introduction-to-panorama-ui-with-typescript)
-- [TypeScript for VScripts](https://typescripttolua.github.io/)
-- Simple commands to build and launch your custom game
-- [Continuous Integration](#continuous-integration) support
+## Requirements
 
-## Getting Started
+- Windows with Dota 2 and the Dota 2 Workshop Tools DLC installed.
+- Node.js 18 or newer.
 
-1. Clone this repository or, if you're planning to have a repository for your custom game on GitHub, [create a new repository from this template](https://help.github.com/en/github/creating-cloning-and-archiving-repositories/creating-a-repository-from-a-template) and clone it instead.
-2. Open the directory of your custom game and change `name` field in `package.json` file to the name of your addon name.
-3. Open terminal in that directory and run `npm install` to install dependencies. You also should run `npm update` once in a while to get tool updates.
+## Setup
 
-After that you can press `Ctrl+Shift+B` in VSCode or run `npm run dev` command in terminal to compile your code and watch for changes.
+```bash
+git clone https://github.com/hercase/turbo-ability-draft.git
+cd turbo-ability-draft
+npm install
+```
 
-## Contents:
+`npm install` runs [scripts/install.js](scripts/install.js), which links the addon into Dota:
 
-* **[src/common]:** TypeScript .d.ts type declaration files with types that can be shared between Panorama and VScripts
-* **[src/vscripts]:** TypeScript code for Dota addon (Lua) vscripts. Compiles lua to game/scripts/vscripts.
-* **[src/panorama]:** TypeScript code for panorama UI. Compiles js to content/panorama/scripts/custom_game
+1. It finds Dota through Steam (`dota 2 beta`).
+2. It **moves** `game/` and `content/` into `<dota>/game/dota_addons/turbo_ability_draft` and
+   `<dota>/content/dota_addons/turbo_ability_draft`.
+3. It replaces them in the repo with directory junctions pointing to the new location.
 
---
+After that, the real files live inside the Dota folder and the repo sees them through the junctions.
+If Dota is not found (for example on macOS or in CI), linking is skipped and the build still works.
 
-* **[game/*]:** Dota game directory containing files such as npc kv files and compiled lua scripts.
-* **[content/*]:** Dota content directory containing panorama sources other than scripts (xml, css, compiled js)
+Manual linking, if you prefer to keep the files in the repo (run `cmd` from the repo root, and
+replace the Dota path with yours):
 
---
+```bat
+mklink /J "C:\Program Files (x86)\Steam\steamapps\common\dota 2 beta\game\dota_addons\turbo_ability_draft" "%CD%\game"
+mklink /J "C:\Program Files (x86)\Steam\steamapps\common\dota 2 beta\content\dota_addons\turbo_ability_draft" "%CD%\content"
+```
 
-* **[scripts/*]:** Repository installation scripts
+## Commands
 
-## Continuous Integration
+| Command | What it does |
+| --- | --- |
+| `npm run dev` | Compiles vscripts and Panorama and watches for changes (also `Ctrl+Shift+B` in VS Code). |
+| `npm run build` | One-off compile. CI runs this. |
+| `npm run launch` | Opens Dota 2 Workshop Tools with this addon. |
+| `npm run abilities:diff` | Compares Dota's current abilities with the committed snapshot (see below). |
 
-This template includes a [GitHub Actions](https://github.com/features/actions) [workflow](.github/workflows/ci.yml) that builds your custom game on every commit and fails when there are type errors.
+To start a game from the Dota console: `dota_launch_custom_game turbo_ability_draft dota`.
+
+### Ability diff after a Dota patch
+
+```bash
+npm run abilities:diff                        # read from the local Dota install
+npm run abilities:diff -- --npc-dir <folder>  # or from an extracted scripts/npc folder
+npm run abilities:diff -- --update            # accept the changes and rewrite the snapshot
+```
+
+It lists added, removed and renamed abilities (renames are matched by ability ID), and config entries
+that point to abilities that no longer exist. It exits with code 1 when something changed.
+
+## Repository layout
+
+| Path | Contents |
+| --- | --- |
+| `src/vscripts/` | Game logic in TypeScript, compiled to Lua in `game/scripts/vscripts/`. |
+| `src/vscripts/config/` | `game_config.json` (all our rules, blacklist and overrides), its types, and the ability snapshot. |
+| `src/panorama/` | UI scripts in TypeScript, compiled to `content/panorama/scripts/custom_game/`. |
+| `src/common/` | Types shared by vscripts and Panorama (for example custom event payloads). |
+| `game/` | Dota game folder: KV files and compiled Lua. |
+| `content/` | Dota content folder: Panorama layouts, styles, images and compiled JS. |
+| `scripts/` | Node tooling: install, launch, ability diff. |
+| `docs/` | Design documentation. |
+
+## Author
+
+Created by Hernan Case: [hercase.vercel.app](https://hercase.vercel.app).
+
+## License
+
+Proprietary, all rights reserved. See [LICENSE](LICENSE).
+Third-party code and its licenses are listed in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
