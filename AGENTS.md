@@ -55,7 +55,7 @@ Closes #<issue>
 - **Never add `Co-Authored-By` trailers, "Generated with ..." lines, or any other AI attribution** to
   commits, PR descriptions or issues. The project's `.claude/settings.json` disables this for Claude
   Code; other tools must be configured the same way.
-- Commit only when asked. Never push to `master` without being asked.
+- Commit only when asked. Never push to `main` without being asked.
 
 ## Tracking work
 
