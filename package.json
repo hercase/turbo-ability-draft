@@ -1,6 +1,11 @@
 {
-    "name": "",
+    "name": "turbo_ability_draft",
     "private": true,
+    "license": "UNLICENSED",
+    "author": {
+        "name": "Hernan Case",
+        "url": "https://hercase.vercel.app"
+    },
     "scripts": {
         "postinstall": "node scripts/install.js",
         "launch": "node scripts/launch.js",
@@ -9,7 +14,8 @@
         "build:vscripts": "tstl --project src/vscripts/tsconfig.json",
         "dev": "run-p dev:*",
         "dev:panorama": "tsc --project src/panorama/tsconfig.json --watch",
-        "dev:vscripts": "tstl --project src/vscripts/tsconfig.json --watch"
+        "dev:vscripts": "tstl --project src/vscripts/tsconfig.json --watch",
+        "abilities:diff": "node scripts/ability-diff.js"
     },
     "devDependencies": {
         "@moddota/dota-lua-types": "^4.34.1",
