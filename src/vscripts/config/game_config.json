@@ -1,0 +1,37 @@
+{
+    "version": 1,
+    "draft": {
+        "regularAbilities": 3,
+        "ultimates": 1,
+        "pickTimeSeconds": 15,
+        "includeInnates": null,
+        "includeFacets": null,
+        "includeTalents": null
+    },
+    "turbo": {
+        "goldMultiplier": null,
+        "xpMultiplier": null,
+        "respawnTimeMultiplier": null,
+        "towerDamageMultiplier": null,
+        "towerArmorBonus": null,
+        "personalCourier": true
+    },
+    "modes": {
+        "classic": {
+            "enabled": true
+        },
+        "solo_mid": {
+            "enabled": false,
+            "killsToWin": {
+                "1v1": null,
+                "2v2": null,
+                "3v3": null
+            }
+        }
+    },
+    "abilities": {
+        "honorValveAbilityDraftFlags": true,
+        "blacklist": {},
+        "overrides": {}
+    }
+}
