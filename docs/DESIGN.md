@@ -66,6 +66,27 @@ Exact values must be checked against the current patch before implementation. Un
   removed and renamed abilities, plus config entries that point to abilities that no longer exist.
   Renames are detected by matching the ability `ID`.
 
+## Panorama UI (Valve docs)
+
+From the Valve wiki page "Custom UI Manifest" (last edited 2026-04-13):
+
+- The UI root is `content/dota_addons/turbo_ability_draft/panorama/layout/custom_game/custom_ui_manifest.xml`.
+  It registers layouts through `CustomUIElement` entries (`type` + `layoutfile`); several entries of the
+  same type stack in manifest order.
+- Inline `<script>` tags are no longer allowed in the manifest. Logic goes in separate files pulled in
+  with `<scripts><include src="..."/></scripts>` (the template already does this).
+- Element types: `Hud`, `HeroSelection`, `GameInfo` (the "i" tab, from setup onwards), `GameSetup`
+  (team select and voting; Valve's default is `layout/custom_game/team_select.xml`), `FlyoutScoreboard`,
+  `HudTopBar` (also visible in the end-game state), `EndScreen`.
+- Default Dota UI parts can be hidden with `GameUI.SetDefaultUIEnabled(DotaDefaultUIElement_t.*, false)`;
+  toggling them dynamically may misbehave.
+- Custom loading screens are handled differently from other elements (not documented on that page).
+  Valve's example addons use `panorama/layout/custom_game/custom_loading_screen.xml`; Overthrow's
+  background image is 1920x1080.
+
+Consequences for us: the mode vote fits in a `GameSetup` element, the draft could live in a
+`HeroSelection` element (instead of a stretched pre-game), and `GameInfo` can explain the rules.
+
 ## Rules for the codebase
 
 - Original code only. Other mods (keymil's, Lozrantekh's fork, Legends of Dota, Poelsemix) may be
@@ -93,6 +114,8 @@ Check before relying on them:
       `content/dota_addons/overthrow/`; whether its map sources are included is unknown.
 - [ ] The name "Turbo Ability Draft" is free on the Workshop.
 - [ ] Valve's UIs (team/hero selection, scoreboards in `content/dota/panorama/*`) are still available.
+      The wiki (2026-04) still references `team_select.xml` and `multiteam_top_scoreboard.xml`; confirm
+      in game.
 - [ ] State of the Arcade servers. Local testing comes first.
 - [ ] Layout of Dota's ability data (single `npc_abilities.txt` vs. per-hero files pulled in with `#base`).
       The diff script's KV reader handles both.
