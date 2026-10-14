@@ -42,7 +42,7 @@ Both modes ship in the first release and are chosen by vote during the setup pha
 | Mode | Map | Win condition |
 | --- | --- | --- |
 | **Classic** | Default Dota map | Destroy the Ancient |
-| **Mid Only** | Default Dota map, creeps only in the middle lane | Undecided: destroy the Ancient (official) or first to N kills |
+| **Mid Only** | Default Dota map, creeps only in the middle lane | Destroy the Ancient (official Mid Only rule) |
 
 ## Build order
 
@@ -58,8 +58,10 @@ official modes on the default map, so it needs no map work and follows patches a
   allowed, any number of players, the game ends when an Ancient falls.
 - Official "1v1 Solo Mid": first to 2 kills or first tower wins, side towers are invulnerable, the
   first runes do not spawn, each player gets a free courier.
-- Ours: 1v1, 2v2 and 3v3 with the same draft and Turbo rules. Win condition undecided
-  (`modes.mid_only.winCondition`).
+- Ours: 1v1, 2v2 and 3v3 with the same draft and Turbo rules.
+- Win condition (decided 2026-10-14): **destroy the Ancient**, as in the official mode. It works for
+  every team size without tuning, allows comebacks, and does not favor early-game burst builds the
+  way a kill race would. A kill race may come later as a lobby option.
 - Risks for 2v2 and 3v3: one creep wave split among several heroes slows leveling (Turbo helps; extra
   gold/XP or creeps per team size could compensate), and a group push takes a tower fast. Tune in
   playtests; drop 3v3 if it is not fun.
@@ -250,8 +252,6 @@ Decide before implementing:
 
 - [ ] Display name for the Workshop: keep "Turbo Ability Draft" or add a suffix (see "Similar mods").
       Check keymil's active player count in the Arcade first.
-- [ ] Mid Only win condition: destroy the Ancient (official) or first to N kills; if kills, N for
-      1v1 / 2v2 / 3v3.
 
 ## Unverified assumptions
 

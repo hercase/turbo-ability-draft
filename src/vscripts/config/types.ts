@@ -17,9 +17,8 @@ export interface GameConfig {
 export interface MidOnlyConfig {
     enabled: boolean;
     teamSizes: number[];
-    /** "ancient": official Mid Only rule. "kills": first team to killsToWin. Undecided. */
-    winCondition: "ancient" | "kills" | null;
-    killsToWin: Record<"1v1" | "2v2" | "3v3", number | null>;
+    /** "ancient": official Mid Only rule (default). A kill race may come later as a lobby option. */
+    winCondition: "ancient";
 }
 
 export interface DraftConfig {

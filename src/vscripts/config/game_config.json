@@ -30,12 +30,7 @@
                 2,
                 3
             ],
-            "winCondition": null,
-            "killsToWin": {
-                "1v1": null,
-                "2v2": null,
-                "3v3": null
-            }
+            "winCondition": "ancient"
         }
     },
     "abilities": {
