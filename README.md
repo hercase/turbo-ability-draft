@@ -71,8 +71,9 @@ mklink /J "C:\Program Files (x86)\Steam\steamapps\common\dota 2 beta\content\dot
 | `npm run typecheck` | Type-checks vscripts and Panorama without writing output. |
 
 Git hooks ([lefthook](https://lefthook.dev/), installed by `npm install`): pre-commit lints, formats
-and type-checks staged files; commit-msg validates Conventional Commits with commitlint; pre-push runs
-the same checks as CI.
+and type-checks staged files; commit-msg validates Conventional Commits with commitlint; pre-push
+refuses pushes to `main` and runs the same checks as CI. `main` only changes through pull requests;
+the "Main guard" workflow flags any commit that reaches it another way.
 | `npm run abilities:diff` | Compares Dota's current abilities with the committed snapshot (see below). |
 
 To start a game from the Dota console: `dota_launch_custom_game turbo_ability_draft dota`.

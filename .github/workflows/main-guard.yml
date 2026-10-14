@@ -1,0 +1,30 @@
+# Detects commits that reach main without a pull request. GitHub cannot block them on a private
+# repo without a paid plan, so this run fails (red check + email) to make them visible.
+# Prevention lives in the lefthook pre-push hook; see AGENTS.md.
+name: Main guard
+
+on:
+    push:
+        branches: [main]
+
+permissions:
+    contents: read
+    pull-requests: read
+
+jobs:
+    guard:
+        name: Changes reach main through a pull request
+        runs-on: ubuntu-latest
+        steps:
+            - name: Check that the pushed commit belongs to a merged pull request
+              env:
+                  GH_TOKEN: ${{ github.token }}
+                  REPO: ${{ github.repository }}
+                  SHA: ${{ github.sha }}
+              run: |
+                  prs=$(gh api "repos/$REPO/commits/$SHA/pulls" --jq '[.[] | select(.merged_at != null)] | length')
+                  if [ "$prs" -eq 0 ]; then
+                      echo "::error title=Direct push to main::Commit $SHA reached main without a merged pull request."
+                      exit 1
+                  fi
+                  echo "Commit $SHA comes from $prs merged pull request(s)."
