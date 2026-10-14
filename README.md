@@ -13,6 +13,26 @@ Addon name: `turbo_ability_draft`. Status: early development, private.
 - Windows with Dota 2 and the Dota 2 Workshop Tools DLC installed.
 - Node.js 24 LTS (see `.nvmrc`; the minimum is 22.12). CI uses the version in `.nvmrc`.
 
+## Development on macOS and Windows
+
+The repo works on both; only Windows can run the game.
+
+| Task | macOS | Windows |
+| --- | --- | --- |
+| Code, docs, `npm run build`, `lint`, `format`, `typecheck` | Yes | Yes |
+| Git hooks (lefthook) | Yes | Yes (needs Git for Windows, which provides the shell the hooks use) |
+| Link the addon into Dota (`npm install`) | Skipped (no Dota) | Yes |
+| `npm run launch`, test in game | No | Yes |
+| `npm run abilities:diff` | With `--game-dir` only | Yes, reads the local install |
+| Publish to the Workshop | No | Yes |
+
+- Node: install the version in `.nvmrc` (24 LTS). [fnm](https://github.com/Schniz/fnm) reads `.nvmrc`
+  on both systems (`fnm use`).
+- Line endings: `.gitattributes` keeps every text file LF on both systems, and VS Code creates new
+  files with LF. Do not change `core.autocrlf` behavior per file.
+- Pull before switching machines, and push before leaving one: the junctions created on Windows point
+  into the Dota install, so uncommitted work there lives inside the Dota folder.
+
 ## Setup
 
 ```bash
