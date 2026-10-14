@@ -5,8 +5,8 @@ Update it whenever a decision is made or changed.
 
 ## Concept
 
-Each player builds one hero through an ability draft, played under Turbo rules. A second, Overthrow-style
-arena mode ("Solo Mid") is planned.
+Each player builds one hero through an ability draft, played under Turbo rules. A second mode, based on
+Dota's official "Mid Only" mode, is planned.
 
 - Display name: **Turbo Ability Draft**
 - Addon name: `turbo_ability_draft` (Valve requires lowercase, digits and underscores)
@@ -17,7 +17,7 @@ arena mode ("Solo Mid") is planned.
 ## Positioning
 
 **The official Ability Draft you already know, at Turbo speed, always up to date with the latest
-patch**, plus a quick Solo Mid arena. Free, with no donations or paid features.
+patch**, plus a Mid Only mode. Free, with no donations or paid features.
 
 Target player: someone who already plays official Ability Draft and wants shorter games (players ask
 for "Turbo Ability Draft" on the Steam forums and Valve has not built it).
@@ -28,7 +28,7 @@ for "Turbo Ability Draft" on the Steam forums and Valve has not built it).
 | Draft | Own rules (abilities, then innate + extra facet, then talents) | Identical to the current official mode |
 | Turbo | Own values | Official Turbo rules |
 | Extras | Periodic ability upgrades, Golden Treasures | Draft card info, reconnect, lobby options |
-| Other modes | None | Solo Mid (1v1 / 2v2 / 3v3) |
+| Other modes | None | Mid Only (1v1 / 2v2 / 3v3) |
 | Patches | Data maintained by hand (last update April 2026) | Reads Dota's data at runtime |
 | Price | Patreon, Boosty, PayPal | Free |
 
@@ -42,12 +42,29 @@ Both modes ship in the first release and are chosen by vote during the setup pha
 | Mode | Map | Win condition |
 | --- | --- | --- |
 | **Classic** | Default Dota map | Destroy the Ancient |
-| **Solo Mid** | Custom arena map built in Hammer (starting from Valve's examples) | First team to N kills (1v1, 2v2, 3v3) |
+| **Mid Only** | Default Dota map, creeps only in the middle lane | Undecided: destroy the Ancient (official) or first to N kills |
 
 ## Build order
 
 1. Draft + Turbo rules on the default map: `dota_launch_custom_game turbo_ability_draft dota`.
-2. Solo Mid arena (not started yet).
+2. Mid Only (not started yet).
+
+## Mid Only
+
+Decision (2026-10-14): instead of a custom Overthrow-style arena, the second mode is based on Dota's
+official modes on the default map, so it needs no map work and follows patches automatically.
+
+- Official "Mid Only" (private lobbies): creeps spawn only in the middle lane, duplicate heroes
+  allowed, any number of players, the game ends when an Ancient falls.
+- Official "1v1 Solo Mid": first to 2 kills or first tower wins, side towers are invulnerable, the
+  first runes do not spawn, each player gets a free courier.
+- Ours: 1v1, 2v2 and 3v3 with the same draft and Turbo rules. Win condition undecided
+  (`modes.mid_only.winCondition`).
+- Risks for 2v2 and 3v3: one creep wave split among several heroes slows leveling (Turbo helps; extra
+  gold/XP or creeps per team size could compensate), and a group push takes a tower fast. Tune in
+  playtests; drop 3v3 if it is not fun.
+- A custom Overthrow-style arena stays as a possible future mode (Valve ships Overthrow's maps as
+  examples).
 
 ## Draft
 
@@ -183,7 +200,7 @@ Consequences for us: the mode vote fits in a `GameSetup` element, the draft coul
   - Surrender vote.
   - Catch-up mechanics: leader bounty and comeback gold.
 - **Localization**: English only for now.
-- **Solo Mid arena**: after the Classic mode is solid.
+- **Mid Only**: after the Classic mode is solid.
 
 Decided against (2026-10-14), to stay faithful to the official mode:
 
@@ -233,7 +250,8 @@ Decide before implementing:
 
 - [ ] Display name for the Workshop: keep "Turbo Ability Draft" or add a suffix (see "Similar mods").
       Check keymil's active player count in the Arcade first.
-- [ ] Kills to win in Solo Mid for each team size (1v1 / 2v2 / 3v3).
+- [ ] Mid Only win condition: destroy the Ancient (official) or first to N kills; if kills, N for
+      1v1 / 2v2 / 3v3.
 
 ## Unverified assumptions
 
@@ -241,7 +259,10 @@ Check before relying on them:
 
 - [x] The template compiles with current tooling (`npm run build` / `npm run dev` pass, 2026-10-14).
 - [ ] The template runs in the current Dota client (needs an in-game test on Windows).
-- [ ] Where Overthrow's source content lives today: check `game/dota_addons/` in the local install and
+- [ ] Mid Only: side lane creeps can be disabled and side towers made invulnerable from vscripts.
+- [ ] Whether publishing requires copying `maps/dota.vpk` into the addon (and re-copying it after map
+      changes). Our repo still needs a `game/addoninfo.txt` declaring the `dota` map.
+- [ ] (Future arena mode only) Where Overthrow's source content lives today: check `game/dota_addons/` in the local install and
       the "Create New Addon From Existing Addon" dialog. The SteamTracking mirror of the Dota client
       (2026-10-13) still ships `overthrow` among the example addons, with its Panorama sources in
       `content/dota_addons/overthrow/`; whether its map sources are included is unknown.

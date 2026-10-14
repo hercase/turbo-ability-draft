@@ -8,9 +8,18 @@ export interface GameConfig {
     turbo: TurboConfig;
     modes: {
         classic: { enabled: boolean };
-        solo_mid: { enabled: boolean; killsToWin: Record<"1v1" | "2v2" | "3v3", number | null> };
+        mid_only: MidOnlyConfig;
     };
     abilities: AbilityRules;
+}
+
+/** Based on Dota's official "Mid Only" mode: default map, creeps only in the middle lane. */
+export interface MidOnlyConfig {
+    enabled: boolean;
+    teamSizes: number[];
+    /** "ancient": official Mid Only rule. "kills": first team to killsToWin. Undecided. */
+    winCondition: "ancient" | "kills" | null;
+    killsToWin: Record<"1v1" | "2v2" | "3v3", number | null>;
 }
 
 export interface DraftConfig {

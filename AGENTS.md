@@ -33,7 +33,7 @@ JavaScript for Panorama).
 - **Ask before deciding** anything listed under "Open questions" in `docs/DESIGN.md`, and verify
   anything listed under "Unverified assumptions" before relying on it.
 - **Propose a plan before large changes** (new systems, new modes, refactors that touch many files).
-- The Solo Mid arena mode is not started. Do not work on it until it is scheduled.
+- The Mid Only mode is not started. Do not work on it until it is scheduled.
 
 ## Commits
 
@@ -49,7 +49,7 @@ Closes #<issue>
 ```
 
 - Types: `feat`, `fix`, `perf`, `refactor`, `docs`, `chore`, `test`, `ci`, `build`, `style`.
-- Suggested scopes: `draft`, `turbo`, `config`, `ui`, `tooling`, `arena`.
+- Suggested scopes: `draft`, `turbo`, `config`, `ui`, `tooling`, `mid-only`.
 - **Never add `Co-Authored-By` trailers, "Generated with ..." lines, or any other AI attribution** to
   commits, PR descriptions or issues. The project's `.claude/settings.json` disables this for Claude
   Code; other tools must be configured the same way.
