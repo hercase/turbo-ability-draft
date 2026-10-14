@@ -14,6 +14,8 @@ export interface GameConfig {
 }
 
 export interface DraftConfig {
+    /** "random": each player gets a random hero. "draft": the hero is one of the picks (official since 7.39). Undecided. */
+    heroSelection: "random" | "draft" | null;
     /** "snake": official turn order. "simultaneous": everyone picks each round at once. Undecided. */
     pickMode: "snake" | "simultaneous" | null;
     regularAbilities: number;
@@ -22,7 +24,6 @@ export interface DraftConfig {
     extraPoolHeroes: number;
     pickTimeSeconds: number | null;
     includeInnates: boolean | null;
-    includeFacets: boolean | null;
     includeTalents: boolean | null;
 }
 

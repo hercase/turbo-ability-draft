@@ -33,7 +33,9 @@ Both modes ship in the first release and are chosen by vote during the setup pha
 Goal: stay as faithful as possible to Dota's official Ability Draft (pool, rules, screens) and extend
 it with Turbo rules, instead of inventing a new draft.
 
-- Each player starts with a random hero.
+- Hero selection is **undecided** (`draft.heroSelection` is `null`): a random hero per player (the
+  original plan, and the official rule before 7.39) or drafting the hero as one of the picks (the
+  official rule since 7.39). It could also be a lobby option.
 - Each player ends with **3 regular abilities + 1 ultimate**.
 - The pool follows the official rules (see below), built from Valve's own data at runtime.
 - Pick order is **undecided** (`draft.pickMode` is `null`):
@@ -47,6 +49,17 @@ it with Turbo rules, instead of inventing a new draft.
 
 Source: [Dota 2 Wiki, Ability Draft](https://dota2.fandom.com/wiki/Ability_Draft) (read 2026-10-14),
 cross-checked against the game files of the Dota client (SteamTracking mirror, 2026-10-13).
+**The wiki page is outdated on hero selection and facets:**
+
+- **Since 7.39 (May 2025)** players draft their base hero as one of the picks, at any point of the
+  normal draft phase; each hero card showed its facets
+  ([esports.gg](https://esports.gg/news/dota-2/5-things-we-love-about-dota-2-patch-7-39-ability-draft/),
+  [BLAST](https://blast.tv/dota/news/dota-2-patch-739-spring-forward-gameplay-update)). 7.39 also
+  fixed many ability interactions and added minigames while queuing. Exact pick counts and timings
+  after this change are not verified.
+- **Since 7.41 facets no longer exist** ("Facets removed from the game" in the client's patch notes).
+
+The rest of this section describes the pre-7.39 rules from the wiki:
 
 - **Pool**: every player gets a random hero with no abilities. The pool holds the abilities of those
   10 heroes plus 2 extra heroes that are not played: 48 regular abilities and 12 ultimates, on a
@@ -138,7 +151,38 @@ From the Valve wiki page "Custom UI Manifest" (last edited 2026-04-13):
 Consequences for us: the mode vote fits in a `GameSetup` element, the draft could live in a
 `HeroSelection` element (instead of a stretched pre-game), and `GameInfo` can explain the rules.
 
+## Improvement backlog
+
+From a research pass on 2026-10-14 (player complaints, similar mods, third-party AD tools). Nothing
+here is decided; each item needs a design before implementation. Effort S/M/L, impact in brackets.
+
+- **Fast draft** (S, high): official AD is seen as slow and its queues are empty; players ask for
+  Turbo AD and Valve has not built it ([Steam thread](https://steamcommunity.com/app/570/discussions/0/594017161232565803)).
+- **Bots fill empty slots** (L, high), so a lobby never stalls; Arcade lobbies suffer from bots and
+  low counts.
+- **Combo rules** (M, high): block known broken pairs and mark abilities that need a partner
+  (e.g. Eclipse without Lucent Beam). Legends of Dota Redux blocked "troll combos".
+- **Native draft hints** (M, high): synergy, strong/trap combos and win rates on the cards. Players
+  install overlays (Ability Draft Plus) because the official UI lacks this; we know the pool on the
+  server.
+- **Show Scepter/Shard upgrades on every card** (S, high): the official UI hides them behind Ctrl+Alt.
+- **Bans and rerolls** (S, med): e.g. 1 ability ban per player, 1 pool reroll per team by vote.
+- **Catch-up mechanics** (M, high): leader bounty, comeback gold; Overthrow-style deliveries in Solo Mid.
+- **Disconnect handling** (M, high): keep hero and picks, bot control while away.
+- **Conditional surrender vote** (S, med).
+- **End screen** (M, med): builds, combo spotlight, MVP.
+- **Loading screen tips and a "GameInfo" rules tab** (S, med).
+- **Localization** (M, med): EN/ES/RU/ZH/PT.
+- **No paid backend**: Ability Arena shut down after Valve banned monetization (Aug 2023) because it
+  had server costs. Valve can also pull Workshop items without notice (Overthrow 3.0, Jul 2026):
+  keep backups and a community channel.
+
 ## Similar mods (ideas only, no code)
+
+- Custom Hero Chaos (long-running top Arcade mode): limited agency (1 hero ban, 1 skill ban,
+  rerolls) plus comeback tokens keep an unbalanced game fun.
+- Legends of Dota Redux: ability/hero bans, blocked troll combos, a point-budget balance mode and a
+  separate "all allowed" map.
 
 - keymil's "ABILITY DRAFT TURBO 10vs10" (Workshop, about 22k subscribers, monetized): drafts 3
   regular + 1 ultimate, then innate + an extra facet, then talents. Its Turbo: -25% cooldowns and
@@ -162,8 +206,9 @@ Consequences for us: the mode vote fits in a `GameSetup` element, the draft coul
 Decide before implementing:
 
 - [ ] Pick order: snake (A) or simultaneous rounds (B)? See "Draft".
-- [ ] Do innate abilities, facets and talents enter the draft? (The official mode turns unrelated
-      talents into gold.)
+- [ ] Hero selection: random hero or drafted hero (official since 7.39)? See "Draft".
+- [ ] Do innate abilities and talents enter the draft? (The official mode turns unrelated talents
+      into gold. Facets were removed in 7.41.)
 - [ ] Display name for the Workshop (see "Similar mods").
 - [ ] Kills to win in Solo Mid for each team size (1v1 / 2v2 / 3v3).
 

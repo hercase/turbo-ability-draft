@@ -1,13 +1,13 @@
 {
     "version": 1,
     "draft": {
+        "heroSelection": null,
         "pickMode": null,
         "regularAbilities": 3,
         "ultimates": 1,
         "extraPoolHeroes": 2,
         "pickTimeSeconds": null,
         "includeInnates": null,
-        "includeFacets": null,
         "includeTalents": null
     },
     "turbo": {
