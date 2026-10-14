@@ -1,7 +1,9 @@
 # Turbo Ability Draft — Design
 
 Living document. It records decisions, open questions, and assumptions that still need verification.
-Update it whenever a decision is made or changed.
+Update it whenever a decision is made or changed. Dated research (Workshop and Arcade numbers, player
+feedback, sources) lives in [`docs/research/`](research/), starting with
+[2026-10-14](research/2026-10-14-market-research.md).
 
 ## Concept
 

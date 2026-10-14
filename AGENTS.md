@@ -12,6 +12,8 @@ JavaScript for Panorama).
 - [README.md](README.md): setup, commands, repository layout.
 - [docs/DESIGN.md](docs/DESIGN.md): decisions, open questions, unverified assumptions. Read it before
   starting a feature, and update it when a decision changes.
+- [docs/research/](docs/research/): dated research snapshots (market data, player feedback, sources).
+  Add a new dated file instead of editing old ones, so numbers can be compared over time.
 
 ## Hard rules
 
