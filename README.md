@@ -50,17 +50,41 @@ mklink /J "C:\Program Files (x86)\Steam\steamapps\common\dota 2 beta\content\dot
 
 To start a game from the Dota console: `dota_launch_custom_game turbo_ability_draft dota`.
 
-### Ability diff after a Dota patch
+### Ability diff
 
 ```bash
-npm run abilities:diff                        # read from the local Dota install
-npm run abilities:diff -- --npc-dir <folder>  # or from an extracted scripts/npc folder
-npm run abilities:diff -- --update            # accept the changes and rewrite the snapshot
+npm run abilities:diff                       # read from the local Dota install
+npm run abilities:diff -- --game-dir <dir>   # or from a folder with steam.inf and an extracted pak01_dir/
+npm run abilities:diff -- --update           # accept the changes and rewrite the snapshot
 ```
 
-It lists added, removed and renamed abilities (renames are matched by ability ID), changes to each
-hero's official Ability Draft pool, and config entries that point to abilities that no longer exist.
-It exits with code 1 when something changed. Run it after every Dota patch.
+It reports the Dota version (gameplay patch and client build), added, removed and renamed
+abilities (renames are matched by ability ID), changes to each hero's official Ability Draft pool,
+and config entries that point to abilities that no longer exist. It exits with code 1 when
+something changed. The snapshot in `src/vscripts/config/ability_snapshot.json` records which Dota
+version the project was last checked against.
+
+## Versioning
+
+- The project follows [semantic versioning](https://semver.org) from `0.x`; the version lives in
+  `package.json`. Bump it and tag the commit (`v0.2.0`) for every build shared with playtesters.
+- Commits follow Conventional Commits (see [AGENTS.md](AGENTS.md)), so the changelog can be built
+  from them.
+- The Dota version we support is the one recorded in the ability snapshot (`dota.patch` and
+  `dota.build`).
+
+## After a Dota patch
+
+Most patches need no code changes: abilities, values and the official draft pool are read from the
+game at runtime. Engine or API changes can only be caught by playing. After each patch:
+
+1. Run `npm run abilities:diff` and review the report.
+2. Fix blacklist or override entries for renamed or removed abilities.
+3. Launch the game and play a short match, watching the console for errors.
+4. Check the patch notes for Turbo changes that affect our Turbo values.
+5. Run `npm run abilities:diff -- --update`, bump the version, and commit
+   (`chore: update to Dota 7.xx`).
+6. Re-publish to the Workshop only if something changed.
 
 ## Repository layout
 

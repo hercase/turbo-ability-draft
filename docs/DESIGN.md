@@ -113,6 +113,9 @@ Exact values must be checked against the current patch before implementation. Un
   It reports added, removed and renamed abilities (matched by ID), draft pool changes, and config
   entries that point to abilities that no longer exist. The first snapshot was generated from the
   SteamTracking mirror (2026-10-13); regenerate it from the local install once on Windows.
+- The snapshot also records the Dota version it was taken from (gameplay patch from the bundled patch
+  notes, client build from `steam.inf`). Current baseline: **Dota 7.41f, build 6958 (Oct 12 2026)**.
+- After every Dota patch follow the checklist in the README ("After a Dota patch").
 
 ## Panorama UI (Valve docs)
 
