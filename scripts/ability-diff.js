@@ -1,5 +1,6 @@
-// Compares Dota's current ability list against the committed snapshot and reports added,
-// removed and renamed abilities, plus config entries that reference missing abilities.
+// Compares Dota's current abilities and official Ability Draft pool against the committed snapshot.
+// Reports added, removed and renamed abilities, changes to each hero's draft pool, and config
+// entries that reference abilities that no longer exist.
 //
 // Usage:
 //   npm run abilities:diff                       read from the local Dota install (pak01_dir.vpk)
@@ -7,6 +8,9 @@
 //   npm run abilities:diff -- --update           also rewrite the snapshot
 //
 // Exits with code 1 when there are differences and --update was not passed.
+//
+// Data layout (Dota 7.4x): generic abilities live in npc_abilities.txt, each hero's abilities in
+// heroes/npc_dota_hero_*.txt under "AbilityDefinitions", and ability IDs in npc_ability_ids.txt.
 
 const fs = require("fs");
 const path = require("path");
@@ -17,9 +21,8 @@ const { VpkReader } = require("./lib/vpk");
 const CONFIG_DIR = path.resolve(__dirname, "..", "src", "vscripts", "config");
 const CONFIG_FILE = path.join(CONFIG_DIR, "game_config.json");
 const SNAPSHOT_FILE = path.join(CONFIG_DIR, "ability_snapshot.json");
-const ABILITIES_FILE = "scripts/npc/npc_abilities.txt";
 
-// Top-level keys of npc_abilities.txt that are not abilities.
+const NPC = "scripts/npc";
 const NON_ABILITY_KEYS = new Set(["Version", "ability_base", "dota_base_ability"]);
 
 function parseArgs(argv) {
@@ -32,15 +35,23 @@ function parseArgs(argv) {
     return args;
 }
 
-/** Returns a function that reads a game file (path relative to the `dota` game folder). */
+/**
+ * Returns an object that reads game files by path relative to the `dota` game folder
+ * (e.g. "scripts/npc/npc_abilities.txt") and lists the files of a folder.
+ */
 async function createFileSource(npcDir) {
     if (npcDir !== undefined) {
         const root = path.resolve(npcDir);
+        const toLocal = gamePath => path.join(root, path.posix.relative(NPC, gamePath));
         return {
             description: root,
-            read: relativePath => {
-                const file = path.join(root, relativePath.replace(/^scripts\/npc\//i, ""));
+            read: gamePath => {
+                const file = toLocal(gamePath);
                 return fs.existsSync(file) ? fs.readFileSync(file, "utf8") : undefined;
+            },
+            list: gameDir => {
+                const dir = toLocal(gameDir);
+                return fs.existsSync(dir) ? fs.readdirSync(dir).map(name => path.posix.join(gameDir, name)) : [];
             },
         };
     }
@@ -53,28 +64,61 @@ async function createFileSource(npcDir) {
     const vpk = new VpkReader(vpkFile);
     return {
         description: vpkFile,
-        read: relativePath => vpk.read(relativePath)?.toString("utf8"),
+        read: gamePath => vpk.read(gamePath)?.toString("utf8"),
+        list: gameDir => vpk.list(gameDir),
     };
 }
 
-function loadAbilities(source) {
-    const text = source.read(ABILITIES_FILE);
-    if (text === undefined) throw new Error(`Could not find ${ABILITIES_FILE} in ${source.description}`);
-
+function readKV(source, gamePath) {
+    const text = source.read(gamePath);
+    if (text === undefined) return undefined;
     // #base paths are relative to the including file's folder.
-    const kv = parseKV(text, basePath => source.read(path.posix.join("scripts/npc", basePath)));
-    const root = kv.DOTAAbilities;
-    if (root === undefined) throw new Error(`${ABILITIES_FILE} has no DOTAAbilities block`);
-
-    const abilities = {};
-    for (const [name, data] of Object.entries(root)) {
-        if (NON_ABILITY_KEYS.has(name) || typeof data !== "object") continue;
-        abilities[name] = data.ID !== undefined ? Number(data.ID) : null;
-    }
-    return abilities;
+    const dir = path.posix.dirname(gamePath);
+    return parseKV(text, basePath => source.read(path.posix.join(dir, basePath)));
 }
 
-function diff(previous, current) {
+function loadGameData(source) {
+    const abilityNames = new Set();
+    const addAbilities = block => {
+        for (const [name, data] of Object.entries(block ?? {})) {
+            if (!NON_ABILITY_KEYS.has(name) && typeof data === "object") abilityNames.add(name);
+        }
+    };
+
+    const generic = readKV(source, `${NPC}/npc_abilities.txt`);
+    if (generic === undefined) throw new Error(`Could not find ${NPC}/npc_abilities.txt in ${source.description}`);
+    addAbilities(generic.DOTAAbilities);
+
+    // Heroes: npc_heroes.txt plus one file per hero. Each hero may carry its own ability definitions
+    // and its official Ability Draft pool ("AbilityDraftAbilities").
+    const heroFiles = [`${NPC}/npc_heroes.txt`, ...source.list(`${NPC}/heroes`).filter(f => f.endsWith(".txt"))];
+    const draftPool = {};
+    for (const file of heroFiles) {
+        const heroes = readKV(source, file)?.DOTAHeroes ?? {};
+        for (const [hero, data] of Object.entries(heroes)) {
+            if (typeof data !== "object" || !hero.startsWith("npc_dota_hero_") || hero === "npc_dota_hero_base") continue;
+            addAbilities(data.AbilityDefinitions);
+            if (typeof data.AbilityDraftAbilities === "object") {
+                draftPool[hero] = Object.values(data.AbilityDraftAbilities);
+            }
+        }
+    }
+
+    const idsFile = readKV(source, `${NPC}/npc_ability_ids.txt`)?.DOTAAbilityIDs?.UnitAbilities ?? {};
+    const ids = { ...idsFile.Floating, ...idsFile.Locked };
+
+    const abilities = {};
+    for (const name of [...abilityNames].sort()) {
+        abilities[name] = ids[name] !== undefined ? Number(ids[name]) : null;
+    }
+    return { abilities, draftPool: sortKeys(draftPool) };
+}
+
+function sortKeys(object) {
+    return Object.fromEntries(Object.entries(object).sort(([a], [b]) => a.localeCompare(b)));
+}
+
+function diffAbilities(previous, current) {
     const added = Object.keys(current).filter(name => !(name in previous));
     const removed = Object.keys(previous).filter(name => !(name in current));
 
@@ -85,19 +129,31 @@ function diff(previous, current) {
         if (id === null) continue;
         const newName = added.find(name => current[name] === id);
         if (newName !== undefined) {
-            renamed.push({ from: oldName, to: newName, id });
+            renamed.push(`${oldName} -> ${newName} (ID ${id})`);
             removed.splice(removed.indexOf(oldName), 1);
             added.splice(added.indexOf(newName), 1);
         }
     }
-    return { added: added.sort(), removed: removed.sort(), renamed };
+    return { added, removed, renamed };
 }
 
-function findStaleConfigEntries(config, current) {
+function diffDraftPool(previous, current) {
+    const changes = [];
+    for (const hero of new Set([...Object.keys(previous), ...Object.keys(current)])) {
+        const before = previous[hero];
+        const after = current[hero];
+        if (before === undefined) changes.push(`${hero}: added [${after.join(", ")}]`);
+        else if (after === undefined) changes.push(`${hero}: removed`);
+        else if (before.join() !== after.join()) changes.push(`${hero}: [${before.join(", ")}] -> [${after.join(", ")}]`);
+    }
+    return changes.sort();
+}
+
+function findStaleConfigEntries(config, abilities) {
     const stale = [];
     for (const section of ["blacklist", "overrides"]) {
         for (const name of Object.keys(config.abilities[section])) {
-            if (!(name in current)) stale.push(`abilities.${section}.${name}`);
+            if (!(name in abilities)) stale.push(`abilities.${section}.${name}`);
         }
     }
     return stale;
@@ -106,44 +162,42 @@ function findStaleConfigEntries(config, current) {
 (async () => {
     const args = parseArgs(process.argv.slice(2));
     const source = await createFileSource(args.npcDir);
-    const current = loadAbilities(source);
+    const current = loadGameData(source);
     const config = JSON.parse(fs.readFileSync(CONFIG_FILE, "utf8"));
     const snapshot = fs.existsSync(SNAPSHOT_FILE) ? JSON.parse(fs.readFileSync(SNAPSHOT_FILE, "utf8")) : undefined;
 
-    console.log(`Read ${Object.keys(current).length} abilities from ${source.description}`);
+    const abilityCount = Object.keys(current.abilities).length;
+    const heroCount = Object.keys(current.draftPool).length;
+    console.log(`Read ${abilityCount} abilities and ${heroCount} hero draft pools from ${source.description}`);
 
-    let hasChanges = false;
+    let changeCount = 0;
+    const print = (title, lines) => {
+        if (lines.length === 0) return;
+        changeCount += lines.length;
+        console.log(`\n${title} (${lines.length}):`);
+        for (const line of lines) console.log(`  ${line}`);
+    };
+
     if (snapshot === undefined) {
         console.log("No snapshot yet. Run with --update to create it.");
-        hasChanges = true;
+        changeCount++;
     } else {
-        const { added, removed, renamed } = diff(snapshot.abilities, current);
-        const print = (title, lines) => {
-            if (lines.length === 0) return;
-            hasChanges = true;
-            console.log(`\n${title} (${lines.length}):`);
-            for (const line of lines) console.log(`  ${line}`);
-        };
-        print("Added", added);
-        print("Removed", removed);
-        print("Renamed", renamed.map(r => `${r.from} -> ${r.to} (ID ${r.id})`));
+        const { added, removed, renamed } = diffAbilities(snapshot.abilities, current.abilities);
+        print("Added abilities", added);
+        print("Removed abilities", removed);
+        print("Renamed abilities", renamed);
+        print("Ability Draft pool changes", diffDraftPool(snapshot.draftPool ?? {}, current.draftPool));
     }
-
-    const stale = findStaleConfigEntries(config, current);
-    if (stale.length > 0) {
-        console.log(`\nConfig entries for abilities that no longer exist (${stale.length}):`);
-        for (const entry of stale) console.log(`  ${entry}`);
-    }
+    print("Config entries for abilities that no longer exist", findStaleConfigEntries(config, current.abilities));
 
     if (args.update) {
-        const sorted = Object.fromEntries(Object.entries(current).sort(([a], [b]) => a.localeCompare(b)));
-        fs.writeFileSync(SNAPSHOT_FILE, JSON.stringify({ abilities: sorted }, undefined, 4) + "\n");
+        fs.writeFileSync(SNAPSHOT_FILE, JSON.stringify(current, undefined, 4) + "\n");
         console.log(`\nSnapshot written to ${path.relative(process.cwd(), SNAPSHOT_FILE)}`);
-    } else if (!hasChanges && stale.length === 0) {
+    } else if (changeCount === 0) {
         console.log("No changes.");
     }
 
-    process.exit(!args.update && (hasChanges || stale.length > 0) ? 1 : 0);
+    process.exit(!args.update && changeCount > 0 ? 1 : 0);
 })().catch(error => {
     console.error(error.message ?? error);
     process.exit(1);

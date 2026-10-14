@@ -1,9 +1,11 @@
 {
     "version": 1,
     "draft": {
+        "pickMode": null,
         "regularAbilities": 3,
         "ultimates": 1,
-        "pickTimeSeconds": 15,
+        "extraPoolHeroes": 2,
+        "pickTimeSeconds": null,
         "includeInnates": null,
         "includeFacets": null,
         "includeTalents": null
@@ -30,7 +32,7 @@
         }
     },
     "abilities": {
-        "honorValveAbilityDraftFlags": true,
+        "useValveDraftPool": true,
         "blacklist": {},
         "overrides": {}
     }

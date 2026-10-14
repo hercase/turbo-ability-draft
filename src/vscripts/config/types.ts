@@ -14,9 +14,13 @@ export interface GameConfig {
 }
 
 export interface DraftConfig {
+    /** "snake": official turn order. "simultaneous": everyone picks each round at once. Undecided. */
+    pickMode: "snake" | "simultaneous" | null;
     regularAbilities: number;
     ultimates: number;
-    pickTimeSeconds: number;
+    /** Heroes whose abilities join the pool without being played (official Ability Draft uses 2). */
+    extraPoolHeroes: number;
+    pickTimeSeconds: number | null;
     includeInnates: boolean | null;
     includeFacets: boolean | null;
     includeTalents: boolean | null;
@@ -32,8 +36,11 @@ export interface TurboConfig {
 }
 
 export interface AbilityRules {
-    /** Skip abilities that Valve's own Ability Draft marks as disabled in its KV data. */
-    honorValveAbilityDraftFlags: boolean;
+    /**
+     * Build each hero's pool from Valve's "AbilityDraftAbilities" hero KV block, which already leaves
+     * out abilities the official mode excludes. The blacklist is applied on top.
+     */
+    useValveDraftPool: boolean;
     /** Ability name -> reason it is excluded from the draft pool. */
     blacklist: Record<string, string>;
     /** Ability name -> balance override applied on top of Valve's KV values. */

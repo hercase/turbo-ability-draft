@@ -56,6 +56,12 @@ class VpkReader {
         return this.entries.has(normalize(filePath));
     }
 
+    /** Lists the paths of all files directly inside `directory`. */
+    list(directory) {
+        const prefix = normalize(directory).replace(/\/?$/, "/");
+        return [...this.entries.keys()].filter(p => p.startsWith(prefix) && !p.slice(prefix.length).includes("/"));
+    }
+
     /** @returns {Buffer | undefined} */
     read(filePath) {
         const entry = this.entries.get(normalize(filePath));
