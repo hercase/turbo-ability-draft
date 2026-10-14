@@ -1,6 +1,11 @@
 {
-    "name": "",
+    "name": "turbo_ability_draft",
     "private": true,
+    "license": "UNLICENSED",
+    "author": {
+        "name": "Hernan Case",
+        "url": "https://hercase.vercel.app"
+    },
     "scripts": {
         "postinstall": "node scripts/install.js",
         "launch": "node scripts/launch.js",
