@@ -271,6 +271,10 @@ keymil's mod has 22k. "Ability Draft Reborn" is already taken (102k, abandoned s
   studied for ideas but not copied.
 - No monetization.
 - The repository stays private until it has been validated with friends.
+- Repository visibility (decided 2026-10-14): **private until launch**. The docs (design, roadmap,
+  positioning, market research) are as valuable to a competitor as the code. Collaborators can be
+  invited to the private repo. Revisit after launch, possibly together with a source-available
+  license. Note that the compiled Lua becomes visible to anyone once the mode is on the Workshop.
 - Code, comments, commits and docs are written in English.
 
 ## Open questions

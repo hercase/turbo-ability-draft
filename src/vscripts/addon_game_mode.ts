@@ -1,3 +1,4 @@
+// Import order is execution order in Lua: libraries with side effects (Timers) must load first.
 import "./lib/timers";
 import { GameMode } from "./GameMode";
 

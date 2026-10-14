@@ -1,0 +1,17 @@
+# Same line endings on macOS and Windows: always LF in the repo and in checkouts.
+# Prettier and .editorconfig expect LF; Git for Windows would otherwise convert to CRLF.
+* text=auto eol=lf
+
+# Windows-only scripts keep CRLF.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Binary assets.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.tga binary
+*.psd binary
+*.vpk binary
+*.wav binary
+*.mp3 binary

@@ -38,12 +38,13 @@ export class GameMode {
                 myNumber: 42,
                 myBoolean: true,
                 myString: "Hello!",
-                myArrayOfNumbers: [1.414, 2.718, 3.142]
+                myArrayOfNumbers: [1.414, 2.718, 3.142],
             });
 
             // Also apply the panic modifier to the sending player's hero
             const hero = player.GetAssignedHero();
-            if (hero != undefined) { // Hero didn't spawn yet or dead
+            if (hero != undefined) {
+                // Hero didn't spawn yet or dead
                 hero.AddNewModifier(hero, undefined, modifier_panic.name, { duration: 5 });
             }
         });

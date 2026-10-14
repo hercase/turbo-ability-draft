@@ -11,7 +11,27 @@ Addon name: `turbo_ability_draft`. Status: early development, private.
 ## Requirements
 
 - Windows with Dota 2 and the Dota 2 Workshop Tools DLC installed.
-- Node.js 18 or newer.
+- Node.js 24 LTS (see `.nvmrc`; the minimum is 22.12). CI uses the version in `.nvmrc`.
+
+## Development on macOS and Windows
+
+The repo works on both; only Windows can run the game.
+
+| Task | macOS | Windows |
+| --- | --- | --- |
+| Code, docs, `npm run build`, `lint`, `format`, `typecheck` | Yes | Yes |
+| Git hooks (lefthook) | Yes | Yes (needs Git for Windows, which provides the shell the hooks use) |
+| Link the addon into Dota (`npm install`) | Skipped (no Dota) | Yes |
+| `npm run launch`, test in game | No | Yes |
+| `npm run abilities:diff` | With `--game-dir` only | Yes, reads the local install |
+| Publish to the Workshop | No | Yes |
+
+- Node: install the version in `.nvmrc` (24 LTS). [fnm](https://github.com/Schniz/fnm) reads `.nvmrc`
+  on both systems (`fnm use`).
+- Line endings: `.gitattributes` keeps every text file LF on both systems, and VS Code creates new
+  files with LF. Do not change `core.autocrlf` behavior per file.
+- Pull before switching machines, and push before leaving one: the junctions created on Windows point
+  into the Dota install, so uncommitted work there lives inside the Dota folder.
 
 ## Setup
 
@@ -46,6 +66,13 @@ mklink /J "C:\Program Files (x86)\Steam\steamapps\common\dota 2 beta\content\dot
 | `npm run dev` | Compiles vscripts and Panorama and watches for changes (also `Ctrl+Shift+B` in VS Code). |
 | `npm run build` | One-off compile. CI runs this. |
 | `npm run launch` | Opens Dota 2 Workshop Tools with this addon. |
+| `npm run lint` | Lints TypeScript and Node scripts with ESLint (`lint:fix` applies automatic fixes). |
+| `npm run format` | Formats code with Prettier (`format:check` only reports). CI runs both checks. |
+| `npm run typecheck` | Type-checks vscripts and Panorama without writing output. |
+
+Git hooks ([lefthook](https://lefthook.dev/), installed by `npm install`): pre-commit lints, formats
+and type-checks staged files; commit-msg validates Conventional Commits with commitlint; pre-push runs
+the same checks as CI.
 | `npm run abilities:diff` | Compares Dota's current abilities with the committed snapshot (see below). |
 
 To start a game from the Dota console: `dota_launch_custom_game turbo_ability_draft dota`.

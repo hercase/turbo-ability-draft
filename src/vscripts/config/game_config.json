@@ -25,11 +25,7 @@
         },
         "mid_only": {
             "enabled": false,
-            "teamSizes": [
-                1,
-                2,
-                3
-            ],
+            "teamSizes": [1, 2, 3],
             "winCondition": "ancient"
         }
     },
