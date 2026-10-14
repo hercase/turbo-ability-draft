@@ -73,6 +73,7 @@ that point to abilities that no longer exist. It exits with code 1 when somethin
 | `content/` | Dota content folder: Panorama layouts, styles, images and compiled JS. |
 | `scripts/` | Node tooling: install, launch, ability diff. |
 | `docs/` | Design documentation. |
+| `art/` | Source images (loading screen, Workshop preview). Game copies live in `content/`. |
 
 ## Author
 
