@@ -143,8 +143,7 @@ adds Turbo rules on top; the draft itself is not reinvented.
       every Ability Draft ability and extra to a test unit and logs the ones that fail),
       `tad_hero <hero>` and `tad_ability <ability>`.
   - In Workshop Tools the `dev` config section adds test bots (`dev.bots`) and shortens the draft
-    and pre-game timings for solo
-    testing (`toolsModeTimings: false` restores the official ones).
+    and pre-game timings for solo testing (`toolsModeTimings: false` restores the official ones).
   - Talents tied to base-hero abilities the player did not draft are replaced, in the same tree slot, by
     Valve's own Ability Draft gold talents (`ad_special_bonus_gold_lvl<row>_<l|r>`: 250 / 500 / 750 /
     1250, from Dota's data); the gold is paid when learned, unless Dota already paid it. A talent's
