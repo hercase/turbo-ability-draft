@@ -516,8 +516,10 @@
         return slot;
     }
 
+    /** Round number in a circle; the label sits inside so it can be centred both ways. */
     function addRoundBadge(round: number): void {
-        (createPanel("Label", pickOrder, "OrderRoundBadge") as LabelPanel).text = String(round);
+        const badge = createPanel("Panel", pickOrder, "OrderRoundBadge");
+        (createPanel("Label", badge, "OrderRoundNumber") as LabelPanel).text = String(round);
     }
 
     /**

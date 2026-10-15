@@ -192,7 +192,11 @@
     border-radius: 50%;
     background-color: #1b2430;
     border: 1px solid #ffffff40;
-    text-align: center;
+}
+
+.OrderRoundNumber {
+    horizontal-align: center;
+    vertical-align: center;
     font-size: 14px;
     font-weight: bold;
     color: #e8edf3;
