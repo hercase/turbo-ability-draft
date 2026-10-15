@@ -124,7 +124,11 @@ function testAbilitiesCommand(): void {
 /** Buttons of the tools-only dev panel in the HUD. */
 function devAction(playerId: PlayerID, action: string): void {
     const hero = PlayerResource.GetSelectedHeroEntity(playerId);
-    if (hero === undefined) return;
+    if (hero === undefined || !IsValidEntity(hero)) {
+        print(`[dev] ${action}: player ${playerId} has no selected hero`);
+        return;
+    }
+    print(`[dev] ${action} on ${hero.GetUnitName()} (player ${playerId}, ${hero.GetAbilityPoints()} points)`);
 
     switch (action) {
         case "level6":
@@ -167,6 +171,7 @@ declare global {
     // Dev command handlers, kept in a Lua global so script_reload can swap them: Dota keeps a console
     // command's first callback across reloads, so each callback only forwards to this table.
     var tadDevCommands: Record<string, DevCommand> | undefined;
+    var tadDevAction: ((playerId: PlayerID, action: string) => void) | undefined;
 }
 
 function devCommands(draft: Draft, builder: HeroBuilder): Record<string, DevCommand> {
@@ -229,11 +234,12 @@ export function registerDevCommands(draft: Draft, builder: HeroBuilder): void {
 
     const firstLoad = tadDevCommands === undefined;
     tadDevCommands = devCommands(draft, builder);
+    tadDevAction = devAction;
     if (!firstLoad) return;
 
     // "Skip draft" button on the draft screen, and the dev panel buttons in the HUD.
     CustomGameEventManager.RegisterListener("dev_skip_draft", () => tadDevCommands?.tad_skip_draft.run([]));
-    CustomGameEventManager.RegisterListener("dev_action", (_, event) => devAction(event.PlayerID, event.action));
+    CustomGameEventManager.RegisterListener("dev_action", (_, event) => tadDevAction?.(event.PlayerID, event.action));
 
     for (const [name, command] of Object.entries(tadDevCommands)) {
         Convars.RegisterCommand(
