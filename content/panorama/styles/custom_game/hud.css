@@ -5,14 +5,15 @@
 
 /* Row of our buttons right after Dota's top-left buttons (upload, settings, menu), same height. */
 #TopLeftButtons {
-    margin: 12px 0px 0px 146px;
+    margin: 15px 0px 0px 146px;
     flow-children: right;
 }
 
 .TopButton {
-    height: 26px;
-    margin-right: 6px;
-    padding: 0px 8px;
+    width: fit-children;
+    height: 20px;
+    margin-right: 4px;
+    padding: 0px 5px;
     border-radius: 3px;
     background-color: #0b0f15cc;
     border: 1px solid #ffffff33;
@@ -27,7 +28,7 @@
 
 .TopButton Label {
     vertical-align: center;
-    font-size: 12px;
+    font-size: 10px;
     font-weight: bold;
     color: #dfe5ec;
 }
@@ -314,8 +315,14 @@
 }
 
 /* Tools only: dev panel, a "DEV" button whose buttons open downward. */
+/* Sized by the DEV button only: the button list is laid over the HUD below it. */
 #DevPanel {
+    width: fit-children;
     flow-children: down;
+}
+
+#DevPanel .TopButton.Dev {
+    horizontal-align: left;
 }
 
 #DevButtons {

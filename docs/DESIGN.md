@@ -114,8 +114,8 @@ adds Turbo rules on top; the draft itself is not reinvented.
     ultimate and buyback status (allies), respawn time, mute, and every player's drafted build.
     Report, unit sharing and disable help are not rebuilt (no Panorama API).
     How the official mode shows builds in game is unverified.
-  - F8 (or an "F8" button next to Dota's top-left buttons) opens a drag-and-drop reorder mode for Q, W, E,
-    D, F and R (the ultimate can move too), in a panel. Dragging on Dota's own bar is not possible: it is
+  - F8 (or an "F8" button next to Dota's top-left buttons) opens a drag-and-drop reorder mode for Q,
+    W, E, D, F and R (the ultimate can move too), in a panel. Dragging on Dota's own bar is not possible: it is
     drawn above custom UI (handles laid over it stayed hidden, 2026-10-14). Changes are previewed and
     only applied on "Apply"; the server checks the whole order.
   - Shard/Scepter extras are hidden when added, like a hero's own upgrades before the item.
@@ -136,8 +136,8 @@ adds Turbo rules on top; the draft itself is not reinvented.
   - Dev tools (Workshop Tools only, `src/vscripts/dev/`):
     - Draft screen: a "Skip draft (dev)" button (or `dev.instantDraft`, off by default) finishes the
       draft with random picks.
-    - HUD: a "DEV" button next to the reorder one, in the row of Dota's top-left buttons (level 6 / 30, +5000 gold, refresh, Scepter, Shard,
-      respawn, enemy target dummy).
+    - HUD: a "DEV" button next to the reorder one, in the row of Dota's top-left buttons (level
+      6 / 30, +5000 gold, refresh, Scepter, Shard, respawn, enemy target dummy).
     - Console: `tad_skip_draft`, `tad_build <hero> <ability>... <ultimate>` (a chosen build without a
       draft), `tad_rebuild` (apply the build again after `script_reload`), `tad_test_abilities` (adds
       every Ability Draft ability and extra to a test unit and logs the ones that fail),
