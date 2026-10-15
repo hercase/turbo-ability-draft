@@ -35,10 +35,15 @@ function buildCommand(draft: Draft, builder: HeroBuilder, args: string[]): void 
 
     const abilities: string[] = [];
     let ultimate = "";
+    // The draft precaches its pool heroes; heroes outside the pool need it too, or their models and
+    // particles are missing (Astral Spirit's model, for example).
+    const sources = new Set<string>([heroName]);
     for (const name of abilityNames) {
         if (name === "-") continue;
         // Use the official pool entry, so grouped abilities (Jakiro's Liquids) come together.
-        const entry = findDraftEntry(name)?.entry ?? name;
+        const found = findDraftEntry(name);
+        const entry = found?.entry ?? name;
+        if (found !== undefined) sources.add(found.hero);
         if (isUltimate(entry)) ultimate = entry;
         else abilities.push(entry);
     }
@@ -48,16 +53,21 @@ function buildCommand(draft: Draft, builder: HeroBuilder, args: string[]): void 
     builder.forget(playerId);
     print(`[dev] tad_build: ${heroName} with ${[...abilities, ultimate].filter(name => name !== "").join(", ")}`);
 
-    // Same hero: rebuild it in place. Another hero: replace it; the new one is built when it spawns.
-    if (hero.GetUnitName() === heroName) {
-        builder.onHeroSpawned(hero);
-        return;
+    let pending = sources.size;
+    for (const source of sources) {
+        PrecacheUnitByNameAsync(source, () => {
+            pending--;
+            if (pending > 0) return;
+            // Same hero: rebuild it in place. Another hero: replace it; the new one is built when it spawns.
+            if (hero.GetUnitName() === heroName) {
+                builder.onHeroSpawned(hero);
+                return;
+            }
+            const replaced = PlayerResource.ReplaceHeroWith(playerId, heroName, hero.GetGold(), 0);
+            if (replaced !== undefined) UTIL_Remove(hero);
+            else print(`[dev] tad_build: could not replace your hero with ${heroName}.`);
+        });
     }
-    PrecacheUnitByNameAsync(heroName, () => {
-        const replaced = PlayerResource.ReplaceHeroWith(playerId, heroName, hero.GetGold(), 0);
-        if (replaced !== undefined) UTIL_Remove(hero);
-        else print(`[dev] tad_build: could not replace your hero with ${heroName}.`);
-    });
 }
 
 /**
