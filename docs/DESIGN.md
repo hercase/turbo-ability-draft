@@ -124,8 +124,8 @@ adds Turbo rules on top; the draft itself is not reinvented.
     `draft.upgrades`).
   - Innates kept in a hotkeyed slot (Witch Doctor's Gris-Gris on R) are moved after the drafted layout.
   - Heroes that already exist at pre-game are replaced by the drafted hero (`ReplaceHeroWith`). Tools
-    bots keep their body and get the drafted abilities: creating a hero for a bot and removing its old
-    one crashed Dota (2026-10-15).
+    bots are left as Dota made them (own hero and abilities; their draft is only shown): Dota's bot AI
+    is per hero, and replacing a bot's hero or giving it other abilities crashed Dota (2026-10-15).
   - Pings, like the official draft: Alt+click on a board entry tells your team you want it, Ctrl+click
     suggests it. The server forwards it to the team only (1 s anti-spam); teammates see a short feed
     and a dot in the requester's color on the entry until it is taken.

@@ -195,11 +195,16 @@ export class HeroBuilder {
         Timers.CreateTimer(0, () => {
             if (this.built.has(playerId) || !IsValidEntity(hero)) return;
 
+            // Bots (tools only) are left exactly as Dota made them. Dota's bot AI is written per hero:
+            // replacing a bot's hero, or giving it another hero's abilities, crashed Dota (2026-10-15).
+            if (PlayerResource.IsFakeClient(playerId)) {
+                this.built.add(playerId);
+                print(`[draft] Bot ${playerId} keeps ${hero.GetUnitName()} and its own abilities.`);
+                return;
+            }
             if (hero.GetUnitName() !== picks.hero) {
-                // Bots (tools only) keep their body: removing a hero a bot still controls crashed Dota
-                // (2026-10-15). Players get the replacement, which spawns again and is built then.
-                const isBot = PlayerResource.IsFakeClient(playerId);
-                if (!isBot && this.replaceHero(playerId, hero, picks.hero)) return;
+                // The replacement spawns again and is built then. If Dota refuses, keep the body.
+                if (this.replaceHero(playerId, hero, picks.hero)) return;
                 print(`[draft] Player ${playerId} keeps ${hero.GetUnitName()} with the ${picks.hero} draft.`);
             }
 
