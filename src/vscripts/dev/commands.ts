@@ -4,12 +4,12 @@ import { Draft } from "../draft/draft";
 import { findDraftEntry, getDraftableHeroes, getHeroDraftAbilities, isUltimate, splitDraftEntry } from "../draft/pool";
 
 /**
- * The hero of the player who typed the command. Commands typed in VConsole have no client (an invalid
- * handle, not nil), so they act on the first human player's hero.
+ * The hero of the player who typed the command. Commands typed in VConsole come with a handle that is
+ * not a player (it has no GetPlayerID), so they act on the first human player's hero.
  */
 function commandHero(): CDOTA_BaseNPC_Hero | undefined {
-    const player = Convars.GetCommandClient();
-    if (player !== undefined && IsValidEntity(player)) {
+    const player = Convars.GetCommandClient() as CDOTAPlayerController | undefined;
+    if (player !== undefined && (player as { GetPlayerID?: unknown }).GetPlayerID !== undefined) {
         return PlayerResource.GetSelectedHeroEntity(player.GetPlayerID());
     }
     for (let id = 0; id < DOTA_MAX_TEAM_PLAYERS; id++) {
