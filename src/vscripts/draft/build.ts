@@ -14,6 +14,15 @@ export function isInnate(name: string): boolean {
     return tostring(kv?.["Innate"]) === "1";
 }
 
+/** Whether the player spends ability points on it (helpers and Scepter/Shard grants level by themselves). */
+function isLearnable(name: string): boolean {
+    const kv = GetAbilityKeyValuesByName(name) as Record<string, unknown> | undefined;
+    if (kv === undefined) return false;
+    const behavior = tostring(kv["AbilityBehavior"]);
+    if (behavior.includes("NOT_LEARNABLE") || behavior.includes("BEHAVIOR_HIDDEN")) return false;
+    return tostring(kv["IsGrantedByScepter"]) !== "1" && tostring(kv["IsGrantedByShard"]) !== "1";
+}
+
 // Dota's hero layout: slots 0-2 basic abilities, 3 Shard/extra, 4 innate, 5 the ultimate (R).
 const ultimateSlot = 5;
 
@@ -102,11 +111,14 @@ export function applyDraftedAbilities(
     // Innates have their own button on the HUD, but some heroes keep theirs in a hotkeyed slot (Witch
     // Doctor's Gris-Gris sits on R). Take those out and add them back after the drafted layout.
     const movedInnates: { name: string; level: number }[] = [];
+    let refundedPoints = 0;
     for (let index = hero.GetAbilityCount() - 1; index >= 0; index--) {
         const ability = hero.GetAbilityByIndex(index);
         if (ability === undefined) continue;
         const name = ability.GetAbilityName();
         if (!keepsOwnAbility(name)) {
+            // A rebuild after leveling (tad_build at level 30) would otherwise lose the spent points.
+            if (isLearnable(name)) refundedPoints += ability.GetLevel();
             hero.RemoveAbilityByHandle(ability);
         } else if (index <= ultimateSlot && isInnate(name)) {
             movedInnates.push({ name, level: ability.GetLevel() });
@@ -152,6 +164,8 @@ export function applyDraftedAbilities(
         const ability = hero.AddAbility(innate.name) as CDOTABaseAbility | undefined;
         ability?.SetLevel(innate.level);
     }
+
+    if (refundedPoints > 0) hero.SetAbilityPoints(hero.GetAbilityPoints() + refundedPoints);
 }
 
 /**
