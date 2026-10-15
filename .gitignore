@@ -17,3 +17,6 @@ node_modules
 *.vsndevts_c
 *.vsnd_c
 panorama_debugger.cfg
+
+# Workshop Tools cache
+tools_thumbnail_cache.sqlite3*

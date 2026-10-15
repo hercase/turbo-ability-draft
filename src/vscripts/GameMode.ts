@@ -1,7 +1,16 @@
 import { reloadable } from "./lib/tstl-utils";
-import { modifier_panic } from "./modifiers/modifier_panic";
+import { config, getDraftTimings } from "./config";
+import { registerDevCommands } from "./dev/commands";
+import { runDevProbes } from "./dev/probes";
+import { HeroBuilder } from "./draft/build";
+import { registerGoldTalents } from "./draft/talents";
+import { Draft, getMaxDraftSeconds } from "./draft/draft";
+import { registerAbilityReorder } from "./reorder";
+import { registerShopRules } from "./shop";
+import { applyTurboBuildings, applyTurboItemTimings, applyTurboRules } from "./turbo";
 
-const heroSelectionTime = 20;
+// Extra hero selection time after the longest possible draft, so Dota never randoms heroes itself.
+const heroSelectionMarginSeconds = 30;
 
 declare global {
     interface CDOTAGameRules {
@@ -11,10 +20,28 @@ declare global {
 
 @reloadable
 export class GameMode {
-    public static Precache(this: void, context: CScriptPrecacheContext) {
-        PrecacheResource("particle", "particles/units/heroes/hero_meepo/meepo_earthbind_projectile_fx.vpcf", context);
-        PrecacheResource("soundfile", "soundevents/game_sounds_heroes/game_sounds_meepo.vsndevts", context);
+    private readonly draft = new Draft(() => this.OnDraftFinished());
+    private readonly heroBuilder = new HeroBuilder(
+        playerId => this.draft.getPlayer(playerId),
+        entry => this.draft.getAbilityHero(entry),
+    );
+
+    private OnDraftFinished(): void {
+        print("Draft finished.");
     }
+
+    /**
+     * Heroes that already exist at pre-game never spawn again: tools bots get theirs before the draft,
+     * and a player may have picked through Dota's own UI. Build (or replace) them here.
+     */
+    private RebuildExistingHeroes(): void {
+        for (const hero of HeroList.GetAllHeroes()) {
+            if (hero.IsRealHero() && !hero.IsTempestDouble()) this.heroBuilder.onHeroSpawned(hero);
+        }
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    public static Precache(this: void, context: CScriptPrecacheContext) {}
 
     public static Activate(this: void) {
         // When the addon activates, create a new instance of this GameMode class.
@@ -27,44 +54,39 @@ export class GameMode {
         // Register event listeners for dota engine events
         ListenToGameEvent("game_rules_state_change", () => this.OnStateChange(), undefined);
         ListenToGameEvent("npc_spawned", event => this.OnNpcSpawned(event), undefined);
-
-        // Register event listeners for events from the UI
-        CustomGameEventManager.RegisterListener("ui_panel_closed", (_, data) => {
-            print(`Player ${data.PlayerID} has closed their UI panel.`);
-
-            // Respond by sending back an example event
-            const player = PlayerResource.GetPlayer(data.PlayerID)!;
-            CustomGameEventManager.Send_ServerToPlayer(player, "example_event", {
-                myNumber: 42,
-                myBoolean: true,
-                myString: "Hello!",
-                myArrayOfNumbers: [1.414, 2.718, 3.142],
-            });
-
-            // Also apply the panic modifier to the sending player's hero
-            const hero = player.GetAssignedHero();
-            if (hero != undefined) {
-                // Hero didn't spawn yet or dead
-                hero.AddNewModifier(hero, undefined, modifier_panic.name, { duration: 5 });
-            }
-        });
+        registerAbilityReorder();
+        registerShopRules();
+        registerGoldTalents();
+        registerDevCommands(this.draft, this.heroBuilder);
     }
 
     private configure(): void {
-        GameRules.SetCustomGameTeamMaxPlayers(DotaTeam.GOODGUYS, 3);
-        GameRules.SetCustomGameTeamMaxPlayers(DotaTeam.BADGUYS, 3);
+        const teamSize = config.modes.classic.teamSize;
+        GameRules.SetCustomGameTeamMaxPlayers(DotaTeam.GOODGUYS, teamSize);
+        GameRules.SetCustomGameTeamMaxPlayers(DotaTeam.BADGUYS, teamSize);
 
+        // The draft runs during Dota's hero selection, on our own HeroSelection screen.
         GameRules.SetShowcaseTime(0);
-        GameRules.SetHeroSelectionTime(heroSelectionTime);
+        GameRules.SetHeroSelectionTime(getMaxDraftSeconds(teamSize * 2) + heroSelectionMarginSeconds);
+        const timings = getDraftTimings();
+        GameRules.SetStrategyTime(timings.strategySeconds);
+        if (timings.preGameSeconds !== null) GameRules.SetPreGameTime(timings.preGameSeconds);
+        GameRules.GetGameModeEntity().SetSelectionGoldPenaltyEnabled(false);
+        // Tools bots only, for solo testing: the released mode has no bots (docs/DESIGN.md).
+        if (IsInToolsMode()) {
+            GameRules.GetGameModeEntity().SetBotThinkingEnabled(true);
+        }
+
+        applyTurboRules();
     }
 
     public OnStateChange(): void {
         const state = GameRules.State_Get();
 
-        // Add 4 bots to lobby in tools
+        // Tools only: bots for solo testing (dev.bots), alternating teams
         if (IsInToolsMode() && state == GameState.CUSTOM_GAME_SETUP) {
-            for (let i = 0; i < 4; i++) {
-                Tutorial.AddBot("npc_dota_hero_lina", "", "", false);
+            for (let i = 0; i < config.dev.bots; i++) {
+                Tutorial.AddBot("npc_dota_hero_lina", "", "hard", i % 2 === 0);
             }
         }
 
@@ -77,34 +99,40 @@ export class GameMode {
             }
         }
 
+        if (state === GameState.HERO_SELECTION) {
+            this.draft.start();
+        }
+
+        if (state === GameState.GAME_IN_PROGRESS) {
+            applyTurboItemTimings();
+        }
+
         // Start game once pregame hits
         if (state === GameState.PRE_GAME) {
+            applyTurboBuildings();
+            Timers.CreateTimer(0.5, () => this.RebuildExistingHeroes());
             Timers.CreateTimer(0.2, () => this.StartGame());
+        }
+    }
+
+    private OnNpcSpawned(event: NpcSpawnedEvent): void {
+        const unit = EntIndexToHScript(event.entindex) as CDOTA_BaseNPC | undefined;
+        if (unit !== undefined && unit.IsRealHero()) {
+            this.heroBuilder.onHeroSpawned(unit as CDOTA_BaseNPC_Hero);
         }
     }
 
     private StartGame(): void {
         print("Game starting!");
 
-        // Do some stuff here
+        runDevProbes();
     }
 
     // Called on script_reload
     public Reload() {
         print("Script reloaded!");
 
-        // Do some stuff here
-    }
-
-    private OnNpcSpawned(event: NpcSpawnedEvent) {
-        // After a hero unit spawns, apply modifier_panic for 8 seconds
-        const unit = EntIndexToHScript(event.entindex) as CDOTA_BaseNPC; // Cast to npc since this is the 'npc_spawned' event
-        // Give all real heroes (not illusions) the meepo_earthbind_ts_example spell
-        if (unit.IsRealHero()) {
-            if (!unit.HasAbility("meepo_earthbind_ts_example")) {
-                // Add lua ability to the unit
-                unit.AddAbility("meepo_earthbind_ts_example");
-            }
-        }
+        // Console commands keep their first callback, so point them at the reloaded code.
+        registerDevCommands(this.draft, this.heroBuilder);
     }
 }

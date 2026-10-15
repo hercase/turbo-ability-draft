@@ -78,13 +78,79 @@ adds Turbo rules on top; the draft itself is not reinvented.
 
 - The hero is drafted as one of the picks (official rule since 7.39).
 - Each player ends with **3 regular abilities + 1 ultimate**.
+- **House rule (decided 2026-10-14, not in the official modes):** Aghanim's Shard applies and the Scepter
+  moves to the inventory right away when bought away from a shop (`shop.aghanimsToHero`).
+- **House rule (decided 2026-10-14, differs from the official mode):** a player may take at most 2
+  abilities from the same hero (`draft.maxAbilitiesPerHero`, `null` for no limit). Drafting a hero as
+  the base hero does not count.
 - Snake pick order and official timings (`draft` section of the config). The timings in the config
   come from the pre-7.39 rules and must be checked against the current official mode, which added
   the hero pick.
 - Innate abilities and talents follow the official rules (unrelated talents become gold).
 - Faster alternatives (simultaneous rounds, random hero) remain possible as config options
   (`pickMode`, `heroSelection`) but are not the default.
-- The detailed flow (states and Panorama UI) is proposed separately before any code is written.
+- Implementation (approved 2026-10-14, `src/vscripts/draft/`, `src/panorama/draft.ts`):
+  - The draft runs during Dota's hero selection, on our own `HeroSelection` screen. Hero selection
+    time is set to the longest possible draft plus a margin; Dota's strategy time is the strategy
+    phase.
+  - Pool: one random hero per player plus `extraPoolHeroes` (at least `minPoolHeroes`, 6, so a 1v1
+    or 2v2 board keeps some variety; decided 2026-10-15), each bringing its official
+    `AbilityDraftAbilities` minus the blacklist. All pool heroes can be drafted as the base hero
+    (unverified against the official mode). Invoker brings 3 random abilities (`randomSubset`).
+  - Planning, then `1 + regularAbilities + ultimates` snake rounds; each turn lasts the full pick
+    time, a missed pick becomes a random valid one, bots pick at random.
+  - When the draft ends each player gets `SetSelectedHero`; on spawn the hero loses its own
+    abilities (except innate, talents and hidden slots) and gets the drafted ones. Heroes that do not
+    match the draft (tools bots) are replaced first.
+  - Each drafted ability also brings its `AbilityDraftExtraAbilities` (Scepter/Shard upgrades and
+    companion abilities, Valve's own Ability Draft data). Slots: drafted abilities on Q/W/E, then the
+    secondary abilities (rest of a grouped entry, hidden helpers, extras) on the hotkeyed D/F slots,
+    the ultimate on R, and any leftover after R (no hotkey).
+  - Hidden, non-learnable helpers from each source hero's own kit are added too (Astral Spirit's move
+    and return, Kunkka's Return, Tusk's Launch Snowball). Valve's data does not link them to the main
+    ability, so all of a source hero's helpers are added; `abilities.noHiddenHelpers` skips heroes whose
+    draft versions differ (Invoker, Kez).
+  - Our scoreboard replaces Dota's (same key): level, K/D/A, last hits/denies, gold, Aghanim's,
+    ultimate and buyback status (allies), respawn time, mute, and every player's drafted build.
+    Report, unit sharing and disable help are not rebuilt (no Panorama API).
+    How the official mode shows builds in game is unverified.
+  - F8 (or an "F8" button next to Dota's top-left buttons) opens a drag-and-drop reorder mode for Q,
+    W, E, D, F and R (the ultimate can move too), in a panel. Dragging on Dota's own bar is not possible: it is
+    drawn above custom UI (handles laid over it stayed hidden, 2026-10-14). Changes are previewed and
+    only applied on "Apply"; the server checks the whole order.
+  - Shard/Scepter extras are hidden when added, like a hero's own upgrades before the item.
+  - Dota's Aghanim's indicator describes the base hero's upgrades. A hover area over it shows instead
+    which drafted abilities Scepter and Shard upgrade (server list from each ability's KV, net table
+    `draft.upgrades`).
+  - Innates kept in a hotkeyed slot (Witch Doctor's Gris-Gris on R) are moved after the drafted layout.
+  - Heroes that already exist at pre-game are replaced by the drafted hero (`ReplaceHeroWith`). Tools
+    bots are left as Dota made them (own hero and abilities; their draft is only shown): Dota's bot AI
+    is per hero, and replacing a bot's hero or giving it other abilities crashed Dota (2026-10-15).
+  - Pings, like the official draft: Alt+click on a board entry tells your team you want it, Ctrl+click
+    suggests it. The server forwards it to the team only (1 s anti-spam); teammates see a short feed
+    and a dot in the requester's color on the entry until it is taken.
+  - Board layout follows the official screen: ultimates in their own block on top (each with a
+    small icon of its source hero, for the per-hero limit), then one card per pool hero with its
+    portrait and standard abilities.
+  - Pool heroes are precached during the draft so drafted abilities have their particles and sounds.
+  - Dev tools (Workshop Tools only, `src/vscripts/dev/`):
+    - Draft screen: a "Skip draft (dev)" button (or `dev.instantDraft`, off by default) finishes the
+      draft with random picks.
+    - HUD: a "DEV" button next to the reorder one, in the row of Dota's top-left buttons (level
+      6 / 30, +5000 gold, refresh, Scepter, Shard, respawn, enemy target dummy).
+    - Console: `tad_skip_draft`, `tad_build <hero> <ability>... <ultimate>` (a chosen build without a
+      draft), `tad_rebuild` (apply the build again after `script_reload`), `tad_test_abilities` (adds
+      every Ability Draft ability and extra to a test unit and logs the ones that fail),
+      `tad_hero <hero>` and `tad_ability <ability>`.
+  - In Workshop Tools the `dev` config section adds test bots (`dev.bots`) and shortens the draft
+    and pre-game timings for solo testing (`toolsModeTimings: false` restores the official ones).
+  - Talents tied to base-hero abilities the player did not draft are replaced, in the same tree slot, by
+    Valve's own Ability Draft gold talents (`ad_special_bonus_gold_lvl<row>_<l|r>`: 250 / 500 / 750 /
+    1250, from Dota's data); the gold is paid when learned, unless Dota already paid it. A talent's
+    ability comes from the abilities' values; 3 of 909 hero talents (behavior talents such as
+    Undying's Tombstone On Death) have no link there and are listed in `abilities.talentLinks`.
+  - Not done yet: `AbilityDraftUltShardAbility` (Hoodwink,
+    Clockwerk), reconnects.
 
 ## Official Ability Draft reference
 
@@ -96,8 +162,14 @@ cross-checked against the game files of the Dota client (SteamTracking mirror, 2
   normal draft phase; each hero card showed its facets
   ([esports.gg](https://esports.gg/news/dota-2/5-things-we-love-about-dota-2-patch-7-39-ability-draft/),
   [BLAST](https://blast.tv/dota/news/dota-2-patch-739-spring-forward-gameplay-update)). 7.39 also
-  fixed many ability interactions and added minigames while queuing. Exact pick counts and timings
-  after this change are not verified.
+  fixed many ability interactions and added minigames while queuing. The in-game rules text now
+  says: a **5-round draft** of the base hero plus up to 3 regular abilities and 1 ultimate, in any
+  order ([research 2026-10-14](research/2026-10-14-turbo-and-ability-draft-rules.md)). Timings, pool
+  size and pick order after this change are not verified.
+- A screenshot of the current official draft screen (shared by the maintainer, 2026-10-14) shows:
+  10 players and 12 ultimates on the board, ultimates in their own block above the standard
+  abilities, player cards with a big hero portrait ("NO HERO" until the hero is drafted) tinted by
+  team, taken picks emptied from the board, and "Next round starts in" between rounds.
 - **Since 7.41 facets no longer exist** ("Facets removed from the game" in the client's patch notes).
 
 The rest of this section describes the pre-7.39 rules from the wiki:
@@ -127,7 +199,8 @@ The rest of this section describes the pre-7.39 rules from the wiki:
 - Hero files `scripts/npc/heroes/npc_dota_hero_*.txt` hold each hero and, under
   `AbilityDefinitions`, its abilities. `npc_abilities.txt` only holds generic abilities. Ability IDs
   live in `npc_ability_ids.txt` (`DOTAAbilityIDs > UnitAbilities > Locked`).
-- Each hero has an **`AbilityDraftAbilities`** block listing the abilities it brings to the official
+- Each hero has an **`AbilityDraftAbilities`** block (`Ability<slot>` keys, with gaps such as 1, 2, 3, 6)
+  listing the abilities it brings to the official
   pool. Excluded abilities are simply missing (e.g. Ogre Magi lists Fireblast, Ignite, Bloodlust but
   not Multicast). There is no `AbilityDraftDisabled` flag.
 - **`AbilityDraftExtraAbilities`** (inside ability definitions) binds Scepter/Shard abilities to an
@@ -137,13 +210,22 @@ The rest of this section describes the pre-7.39 rules from the wiki:
 
 ## Turbo rules
 
-- 2x gold and XP.
-- Shorter respawn times.
-- Weaker towers.
-- Personal courier for each player.
+Values and sources: [research 2026-10-14](research/2026-10-14-turbo-and-ability-draft-rules.md).
+Implemented in `src/vscripts/turbo.ts`, driven by the `turbo` section of the config:
 
-Exact values must be checked against the current patch before implementation. Until then, the
-`turbo` section of the config holds `null` placeholders.
+- 2x XP (all sources); 2x gold from creeps, neutrals and Bounty Runes; no gold lost on death.
+- Personal hasted flying courier for each player.
+- Tower HP and armor per tier (T1 1350/9, T2-T3 2500/16, T4 2600/21); Ancients do not regenerate.
+- Sell anywhere (`SetCanSellAnywhere`) and Secret Shop items at any shop (`SetUseUniversalShopMode`).
+- Shard in stock at 7:30 and Infused Raindrop at 1:30 (`turbo.itemAvailableAtSeconds`): the stock is
+  raised when the game clock reaches the time, since Dota has no setter for a first stock time.
+
+Not implemented yet:
+
+- Respawn time: "25% faster" is unconfirmed, so `respawnTimeMultiplier` stays `null`.
+- Hand of Midas doubling: its gold reason is unknown (maybe `ABILITY_GOLD`); check in game.
+- Tower stats not applying to summon damage, faster creep upgrades, halved TP/Roshan/Madstone
+  timings.
 
 ## Problematic abilities
 
@@ -288,7 +370,7 @@ Decide before implementing:
 Check before relying on them:
 
 - [x] The template compiles with current tooling (`npm run build` / `npm run dev` pass, 2026-10-14).
-- [ ] The template runs in the current Dota client (needs an in-game test on Windows).
+- [x] The template runs in the current Dota client (tested in Workshop Tools on Windows, 2026-10-14).
 - [ ] Mid Only: side lane creeps can be disabled and side towers made invulnerable from vscripts.
 - [ ] Whether publishing requires copying `maps/dota.vpk` into the addon (and re-copying it after map
       changes). Our repo still needs a `game/addoninfo.txt` declaring the `dota` map.
@@ -305,8 +387,27 @@ Check before relying on them:
       `npc_ability_ids.txt` (checked against the 2026-10-13 client files).
 - [x] Valve's Ability Draft KV data: `AbilityDraftAbilities`, `AbilityDraftExtraAbilities`,
       `AbilityDraftUltShardAbility`; no `AbilityDraftDisabled` flag.
-- [ ] `GetUnitKeyValuesByName` returns the `AbilityDraftAbilities` block in game.
+- [x] `GetUnitKeyValuesByName` returns the `AbilityDraftAbilities` block in game (2026-10-14: Meepo,
+      Leshrac and Invoker's `_ad` variants came back as `Ability1..N`; `AbilityDraftExtraAbilities` and
+      `AbilityDraftUltShardAbility` were absent on those three heroes).
 - [ ] Current official draft details after 7.39: number of phases, pick timer, when the hero pick
       happens, and how the hero pool is built. Play or watch a current Ability Draft match.
-- [ ] Whether a custom game can run on top of Valve's official Ability Draft mode (its UI and engine
-      adaptations) and only add Turbo rules. Test on Windows before building our own draft screen.
+- [x] Whether a custom game can run on top of Valve's official Ability Draft mode: **no**. Launched with
+      `+dota_force_gamemode 18` (2026-10-14), the addon still ran Dota's custom game flow (setup, our
+      hero selection) and the official draft never appeared. `npm run launch -- <map> --official-ad`
+      repeats the test.
+- [ ] Our `HeroSelection` element fully covers Dota's own hero picker (Valve's examples use it as an
+      overlay).
+- [x] `PlayerResource.GetNthPlayerIDOnTeam` is 1-based; `SetSelectedHero` works for tools bots
+      (2026-10-14 playtest: all 5 players drafted and got their heroes).
+- [ ] Drafted abilities land in the right HUD slots after removing the hero's own ones (regular in
+      Q/W/E, ultimate in R), and Invoker's `_ad` abilities work on other heroes.
+- [x] `panorama/localization/addon_english.txt` with an `"addon"` root is loaded (Overthrow's format).
+- [x] Dota's ability bar is the HUD panel "abilities" (DotaHud > … > AbilitiesAndStatBranch), with one
+      child per displayed ability (2026-10-14 log); its buttons do not expose the ability name.
+- [ ] Raising an item's stock with `SetItemStockCount` makes the Shard/Raindrop buyable early.
+- [ ] `modifier_item_aghanims_shard` added by script (no item) grants the Shard upgrades.
+- [ ] Valve's `ad_special_bonus_gold_*` talents show in the tree, and whether Dota pays their gold in
+      a custom game (logged as `[talents]`).
+- [ ] Dota's Aghanim's indicator is the outermost `lower_hud` panel whose id contains "aghs".
+- [ ] Shard/Scepter extras hidden by script (`SetHidden`) appear when the item is bought.

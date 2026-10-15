@@ -3,6 +3,8 @@
         <include src="file://{resources}/scripts/custom_game/manifest.js" />
     </scripts>
     <Panel>
+        <CustomUIElement type="HeroSelection" layoutfile="file://{resources}/layout/custom_game/draft.xml" />
         <CustomUIElement type="Hud" layoutfile="file://{resources}/layout/custom_game/hud.xml" />
+        <CustomUIElement type="FlyoutScoreboard" layoutfile="file://{resources}/layout/custom_game/scoreboard.xml" />
     </Panel>
 </root>

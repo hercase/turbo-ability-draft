@@ -3,61 +3,361 @@
     height: 100%;
 }
 
-#ExamplePanel {
-    width: 500px;
-    height: 500px;
-    /* Using a background image already in dota */
-    background-image: url("s2r://panorama/images/loadingscreens/international_2023_ls_3/loadingscreen.vtex");
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: cover;
+/* Row of our buttons right after Dota's top-left buttons (upload, settings, menu), same height. */
+#TopLeftButtons {
+    margin: 15px 0px 0px 146px;
+    flow-children: right;
+}
 
-    border-style: solid;
-    border-width: 3px;
-    border-color: rgb(0, 0, 0);
+.TopButton {
+    width: fit-children;
+    height: 20px;
+    margin-right: 4px;
+    padding: 0px 5px;
+    border-radius: 3px;
+    background-color: #0b0f15cc;
+    border: 1px solid #ffffff33;
+    transition-property: background-color, border;
+    transition-duration: 0.15s;
+}
 
-    horizontal-align: center;
+.TopButton:hover {
+    background-color: #ffffff1f;
+    border: 1px solid #ffffff80;
+}
+
+.TopButton Label {
     vertical-align: center;
+    font-size: 10px;
+    font-weight: bold;
+    color: #dfe5ec;
 }
 
-#ExamplePanel #BannerImage {
-    width: 200px;
-    height: 200px;
-    horizontal-align: center;
-    y: 40px;
+.ReorderMode #ReorderHint {
+    border: 1px solid #c9a24a;
 }
 
-#ExamplePanel .ExampleTitle {
-    horizontal-align: center;
-    font-size: 30px;
-    y: 260px;
+.TopButton.Dev {
+    background-color: #c8452f99;
+    border: 1px solid #e2593f;
 }
 
-#ExamplePanel .ExampleParagraph {
-    y: 320px;
-    margin-left: 30px;
-    margin-right: 30px;
-}
-
-#ExamplePanel #CloseButton {
-    width: 100px;
-    height: 50px;
-    background-color: rgb(228, 228, 228);
+/* Reorder panel, shown while the mode is on. Neutral colors: gold only marks the selection. */
+#ReorderPanel {
     horizontal-align: center;
     vertical-align: bottom;
-    y: -30px;
+    margin-bottom: 210px;
+    flow-children: down;
+    padding: 12px 18px 14px 18px;
+    border-radius: 8px;
+    background-color: #0b0f15f2;
+    border: 1px solid #ffffff2e;
+    visibility: collapse;
 }
 
-#ExamplePanel #CloseButton Label {
+.ReorderMode #ReorderPanel {
+    visibility: visible;
+}
+
+#ReorderTitle {
+    horizontal-align: center;
+    font-size: 14px;
+    font-weight: bold;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #e8edf3;
+}
+
+#ReorderHelp {
+    horizontal-align: center;
+    margin-top: 2px;
+    font-size: 12px;
+    color: #8f9bab;
+}
+
+#ReorderSlots {
+    horizontal-align: center;
+    margin-top: 12px;
+    flow-children: right;
+}
+
+.ReorderSlot {
+    width: 96px;
+    flow-children: down;
+    margin: 0px 4px;
+}
+
+.ReorderKey {
+    horizontal-align: center;
+    font-size: 14px;
+    font-weight: bold;
+    color: #c9d3df;
+}
+
+/* Clickable frame around the ability image; styles go here, not on Dota's image. */
+.ReorderFrame {
+    horizontal-align: center;
+    margin-top: 4px;
+    padding: 2px;
+    border-radius: 5px;
+    border: 2px solid #ffffff1a;
+    transition-property: border, background-color;
+    transition-duration: 0.12s;
+}
+
+.ReorderFrame:hover {
+    border: 2px solid #ffffff66;
+}
+
+.ReorderName {
+    width: 100%;
+    margin-top: 4px;
+    text-align: center;
+    text-overflow: ellipsis;
+    font-size: 11px;
+    color: #aeb9c7;
+}
+
+/* Drag and drop: the picked-up slot fades, the slot under the cursor lights up. */
+.ReorderFrame.Dragging {
+    opacity: 0.35;
+}
+
+.ReorderFrame.DropTarget {
+    border: 2px solid #ffffff;
+    background-color: #ffffff26;
+}
+
+.ReorderDragGhost {
+    width: 60px;
+    height: 60px;
+    opacity: 0.9;
+}
+
+.ReorderAbility {
+    width: 60px;
+    height: 60px;
+}
+
+/* Moved in the preview but not applied yet: gold key and frame. */
+.ReorderSlot.Changed .ReorderKey {
+    color: #c9a24a;
+}
+
+.ReorderSlot.Changed .ReorderFrame {
+    border: 2px solid #c9a24a;
+}
+
+#ReorderButtons {
+    horizontal-align: center;
+    margin-top: 14px;
+    flow-children: right;
+}
+
+.ReorderButton {
+    min-width: 84px;
+    height: 32px;
+    margin: 0px 5px;
+    border-radius: 4px;
+    background-color: #ffffff12;
+    border: 1px solid #ffffff2e;
+}
+
+.ReorderButton:hover {
+    background-color: #ffffff24;
+}
+
+.ReorderButton Label {
     horizontal-align: center;
     vertical-align: center;
-    color: black;
+    font-size: 13px;
+    font-weight: bold;
+    text-transform: uppercase;
+    color: #dfe5ec;
 }
 
-#ExamplePanel #CloseButton:hover {
-    background-color: rgb(0, 135, 245);
+/* Apply and Reset stay muted until something changed. */
+.ReorderButton.Primary,
+#ReorderReset {
+    opacity: 0.45;
 }
 
-#ExamplePanel #CloseButton:hover Label {
-    color: white;
+.ReorderChanged #ReorderReset {
+    opacity: 1;
+}
+
+.ReorderChanged .ReorderButton.Primary {
+    opacity: 1;
+    background-color: #c9a24a40;
+    border: 1px solid #c9a24a;
+}
+
+/* Invisible hover area over Dota's Aghanim's indicator (positioned from the script). */
+#AghsOverlay {
+    width: 100%;
+    height: 100%;
+}
+
+.AghsHover {
+    background-color: #00000001;
+}
+
+/* Aghanim's tooltip, matching Dota's own item tooltip: dark slate, square corners, white uppercase
+   titles, blue Upgrade / New ability tags, grey descriptions. Positioned from the script. */
+#AghsTooltip {
+    width: 400px;
+    /* Anchored by its bottom edge, just above the indicator (offset set from the script). */
+    vertical-align: bottom;
+    flow-children: down;
+    background-color: gradient(linear, 0% 0%, 0% 100%, from(#1c2229fa), to(#12161bfa));
+    border: 1px solid #3a4250;
+    visibility: collapse;
+}
+
+#AghsTooltip.Visible {
+    visibility: visible;
+}
+
+/* Pointer under the tooltip, like Dota's: a square turned 45 degrees, with the tooltip's colors and
+   only its two lower edges bordered, so its bottom corner points at the indicator. */
+#AghsTooltipArrow {
+    width: 14px;
+    height: 14px;
+    background-color: #12161b;
+    border-right: 1px solid #3a4250;
+    border-bottom: 1px solid #3a4250;
+    transform: rotateZ(45deg);
+    visibility: collapse;
+}
+
+#AghsTooltipArrow.Visible {
+    visibility: visible;
+}
+
+.AghsSection {
+    width: 100%;
+    flow-children: down;
+    padding-bottom: 12px;
+}
+
+.AghsSection.Shard {
+    border-top: 1px solid #2c333c;
+}
+
+/* Item header: icon and title, like the top of Dota's item tooltip. */
+.AghsHeader {
+    width: 100%;
+    flow-children: right;
+    padding: 10px 14px 8px 14px;
+    background-color: #0000004d;
+}
+
+.AghsItemIcon {
+    width: 48px;
+    height: 36px;
+    vertical-align: center;
+    margin-right: 12px;
+}
+
+.AghsTitle {
+    vertical-align: center;
+    font-size: 20px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #e8eef2;
+}
+
+.AghsNone {
+    margin: 10px 14px 0px 14px;
+    font-size: 14px;
+    color: #8f9bab;
+}
+
+.AghsEntry {
+    width: 100%;
+    flow-children: right;
+    margin: 12px 14px 0px 14px;
+}
+
+.AghsIconFrame {
+    padding: 0px;
+}
+
+.AghsIcon {
+    width: 44px;
+    height: 44px;
+}
+
+.AghsText {
+    width: fill-parent-flow(1);
+    flow-children: down;
+    margin: 0px 28px 0px 12px;
+}
+
+.AghsName {
+    font-size: 17px;
+    font-weight: bold;
+    text-transform: uppercase;
+    color: #e8eef2;
+}
+
+/* Dota's blue "UPGRADE" / "NEW ABILITY" pill. */
+.AghsTag {
+    margin-top: 3px;
+    padding: 1px 8px;
+    background-color: #2c4f7c;
+    font-size: 10px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #c2d7f0;
+}
+
+.AghsDescription {
+    width: 100%;
+    margin-top: 6px;
+    font-size: 14px;
+    color: #b8c3cf;
+}
+
+/* Tools only: dev panel, a "DEV" button whose buttons open downward. */
+/* Sized by the DEV button only: the button list is laid over the HUD below it. */
+#DevPanel {
+    width: fit-children;
+    flow-children: down;
+}
+
+#DevPanel .TopButton.Dev {
+    horizontal-align: left;
+}
+
+#DevButtons {
+    flow-children: down;
+    margin-top: 4px;
+    visibility: collapse;
+}
+
+#DevPanel.Open #DevButtons {
+    visibility: visible;
+}
+
+.DevButton {
+    width: 110px;
+    margin-bottom: 3px;
+    padding: 3px 8px;
+    border-radius: 3px;
+    background-color: #0b0f15e6;
+    border: 1px solid #c8452f99;
+}
+
+.DevButton:hover {
+    background-color: #c8452f66;
+}
+
+.DevButton Label {
+    horizontal-align: center;
+    font-size: 12px;
+    font-weight: bold;
+    color: #ffffff;
 }

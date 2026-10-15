@@ -5,23 +5,54 @@
         "pickMode": "snake",
         "regularAbilities": 3,
         "ultimates": 1,
+        "maxAbilitiesPerHero": 2,
         "extraPoolHeroes": 2,
+        "minPoolHeroes": 6,
         "planningSeconds": 60,
         "pickTimeSeconds": 7,
         "phaseBreakSeconds": 5,
         "strategySeconds": 30
     },
     "turbo": {
-        "goldMultiplier": null,
-        "xpMultiplier": null,
+        "xpMultiplier": 2,
+        "goldMultiplier": 2,
+        "goldMultiplierReasons": ["CREEP_KILL", "NEUTRAL_KILL", "BOUNTY_RUNE"],
+        "loseGoldOnDeath": false,
         "respawnTimeMultiplier": null,
-        "towerDamageMultiplier": null,
-        "towerArmorBonus": null,
-        "personalCourier": true
+        "personalCourier": true,
+        "sellAnywhere": true,
+        "universalShop": true,
+        "towers": {
+            "tier1": {
+                "health": 1350,
+                "armor": 9
+            },
+            "tier2": {
+                "health": 2500,
+                "armor": 16
+            },
+            "tier3": {
+                "health": 2500,
+                "armor": 16
+            },
+            "tier4": {
+                "health": 2600,
+                "armor": 21
+            }
+        },
+        "ancientHealthRegen": 0,
+        "itemAvailableAtSeconds": {
+            "item_aghanims_shard": 450,
+            "item_infused_raindrop": 90
+        }
+    },
+    "shop": {
+        "aghanimsToHero": true
     },
     "modes": {
         "classic": {
-            "enabled": true
+            "enabled": true,
+            "teamSize": 5
         },
         "mid_only": {
             "enabled": false,
@@ -32,6 +63,40 @@
     "abilities": {
         "useValveDraftPool": true,
         "blacklist": {},
-        "overrides": {}
+        "overrides": {},
+        "randomSubset": {
+            "npc_dota_hero_invoker": {
+                "count": 3,
+                "reason": "Official Ability Draft offers 3 random abilities out of Invoker's 10 _ad variants."
+            }
+        },
+        "noHiddenHelpers": {
+            "npc_dota_hero_invoker": "Ability Draft uses Invoker's _ad spells; his kit's hidden spells would add the real Invoke set.",
+            "npc_dota_hero_kez": "Ability Draft uses Kez's _ad stance pairs; his kit's hidden stance abilities are the non-draft versions."
+        },
+        "talentLinks": {
+            "special_bonus_unique_bounty_hunter_8": {
+                "ability": "bounty_hunter_track",
+                "reason": "Track Grants Shared Vision: behavior talent with no link in Track's KV."
+            },
+            "special_bonus_unique_tiny_5": {
+                "ability": "tiny_toss",
+                "reason": "Toss Requires No Target: behavior talent with no link in Toss's KV."
+            },
+            "special_bonus_unique_undying_3": {
+                "ability": "undying_tombstone",
+                "reason": "Tombstone On Death: behavior talent with no link in Tombstone's KV (playtest 2026-10-14)."
+            }
+        }
+    },
+    "dev": {
+        "toolsModeTimings": true,
+        "instantDraft": false,
+        "bots": 5,
+        "planningSeconds": 20,
+        "pickTimeSeconds": 7,
+        "phaseBreakSeconds": 1,
+        "strategySeconds": 5,
+        "preGameSeconds": 10
     }
 }

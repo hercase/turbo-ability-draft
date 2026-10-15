@@ -1,0 +1,75 @@
+<root>
+    <scripts>
+        <include src="file://{resources}/scripts/custom_game/draft.js" />
+    </scripts>
+
+    <styles>
+        <include src="s2r://panorama/styles/dotastyles.css" />
+        <include src="file://{resources}/styles/custom_game/draft.css" />
+    </styles>
+
+    <Panel class="DraftRoot" hittest="true">
+        <!-- Background art, then a shade that keeps the board readable, then the content. -->
+        <Panel id="DraftBackground" />
+        <Panel id="DraftShade" />
+
+        <Panel id="DraftContent">
+            <Panel id="DraftHeader">
+                <Panel id="DraftLogo">
+                    <Label id="DraftLogoTurbo" text="#draft_logo_turbo" />
+                    <Panel id="DraftLogoRule">
+                        <Panel class="RuleLine" />
+                        <Panel class="RuleDiamond" />
+                        <Panel class="RuleLine" />
+                    </Panel>
+                    <Label id="DraftTitle" text="#draft_title" />
+                </Panel>
+
+                <Panel id="DraftHeaderCenter">
+                    <Panel id="DraftStatusRow">
+                        <Panel id="DraftTimerRing">
+                            <!-- Gold arc that empties with the time left (radial clip set by the script). -->
+                            <Panel id="DraftTimerProgress" hittest="false" />
+                            <Label id="DraftTimer" />
+                        </Panel>
+                        <Panel id="DraftStatusText">
+                            <Label id="DraftPhase" />
+                            <Label id="DraftTurn" />
+                        </Panel>
+                    </Panel>
+                    <Panel id="PickOrder" />
+                    <Label id="DraftNextTurn" />
+                </Panel>
+            </Panel>
+
+            <Panel id="DraftBody">
+                <Panel class="TeamColumn Radiant">
+                    <Label class="TeamName" text="#DOTA_GoodGuys" />
+                    <Panel id="RadiantPlayers" class="TeamPlayers" />
+                </Panel>
+                <Panel id="DraftBoardFrame">
+                    <Panel id="DraftBoard" />
+                    <Label id="DraftLegend" text="#draft_legend" />
+                    <Label id="DraftUpgradesHint" text="#draft_upgrades_hint" />
+                    <Label id="DraftRequestHint" text="#draft_request_hint" />
+                </Panel>
+                <Panel class="TeamColumn Dire">
+                    <Label class="TeamName" text="#DOTA_BadGuys" />
+                    <Panel id="DirePlayers" class="TeamPlayers" />
+                </Panel>
+            </Panel>
+        </Panel>
+
+        <!-- Tools only: finish the draft with random picks, for quick testing. -->
+        <TextButton id="DevSkipDraft" class="DevSkipDraft" text="Skip draft (dev)" />
+
+        <!-- Teammates' Alt/Ctrl+click requests, newest at the bottom. -->
+        <Panel id="DraftRequests" hittest="false" />
+
+        <!-- Shown for a moment when the local player's turn starts. -->
+        <Panel id="YourTurnToast" hittest="false">
+            <Label id="YourTurnTitle" text="#draft_your_turn_big" />
+            <Label id="YourTurnHint" text="#draft_your_turn" />
+        </Panel>
+    </Panel>
+</root>
