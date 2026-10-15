@@ -734,7 +734,6 @@
     margin-bottom: 1px;
     background-color: #000000b3;
     border-radius: 3px;
-    scaling: stretch-to-fit-preserve-aspect;
 }
 
 /* A taken pick goes dark, like an emptied slot; its bar keeps the picker's color. */

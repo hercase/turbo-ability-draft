@@ -257,6 +257,8 @@
         for (const icon of icons) {
             const image = createPanel("Image", badges, "UpgradeBadge") as ImagePanel;
             image.SetImage(icon);
+            // Image scaling is a panel setting in Panorama, not a CSS property.
+            image.SetScaling("stretch-to-fit-preserve-aspect");
             image.hittest = false;
         }
     }
