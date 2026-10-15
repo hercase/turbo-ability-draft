@@ -1,0 +1,267 @@
+.ScoreboardRoot {
+    width: 100%;
+    height: 100%;
+}
+
+/* Opens under the top bar, like Dota's own scoreboard. */
+#Scoreboard {
+    horizontal-align: center;
+    margin-top: 70px;
+    flow-children: down;
+    padding: 12px 16px;
+    border-radius: 8px;
+    background-color: #0b0f15f2;
+    border: 1px solid #ffffff26;
+    opacity: 0;
+    pre-transform-scale2d: 0.97;
+    transition-property: opacity, pre-transform-scale2d;
+    transition-duration: 0.12s;
+}
+
+.ScoreboardVisible #Scoreboard {
+    opacity: 1;
+    pre-transform-scale2d: 1;
+}
+
+.ScoreboardTeam {
+    flow-children: down;
+    margin-bottom: 8px;
+}
+
+.TeamHeader {
+    flow-children: right;
+    margin-bottom: 2px;
+}
+
+.TeamTitle {
+    font-size: 15px;
+    font-weight: bold;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+}
+
+.Radiant .TeamTitle {
+    color: #6fd25f;
+}
+
+.Dire .TeamTitle {
+    color: #e2593f;
+}
+
+.TeamKills {
+    margin-left: 10px;
+    font-size: 15px;
+    font-weight: bold;
+    color: #e8edf3;
+}
+
+.TeamRows {
+    flow-children: down;
+}
+
+.HeadingRow {
+    flow-children: right;
+    margin-bottom: 4px;
+    padding-left: 5px;
+}
+
+.Heading {
+    font-size: 11px;
+    color: #8a96a8;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-align: center;
+}
+
+.ScoreRow {
+    flow-children: right;
+    margin-bottom: 4px;
+    padding: 5px 8px 5px 5px;
+    border-radius: 4px;
+}
+
+.Radiant .ScoreRow {
+    background-color: gradient(linear, 0% 0%, 100% 0%, from(#1f3a2299), to(#11161e99));
+}
+
+.Dire .ScoreRow {
+    background-color: gradient(linear, 0% 0%, 100% 0%, from(#3d1d1a99), to(#11161e99));
+}
+
+.ScoreRow.LocalPlayer {
+    border: 1px solid #ffffff40;
+}
+
+.ScoreRow.Disconnected {
+    opacity: 0.5;
+}
+
+.Cell {
+    height: 40px;
+    flow-children: right;
+}
+
+.Cell.Stacked {
+    flow-children: down;
+}
+
+.Identity {
+    flow-children: right;
+}
+
+.RowColor {
+    width: 5px;
+    height: 40px;
+    margin-right: 6px;
+    border-radius: 2px;
+}
+
+.RowPortrait {
+    width: 71px;
+    height: 40px;
+    margin-right: 8px;
+}
+
+.RowHero {
+    width: 100%;
+    height: 100%;
+}
+
+.Dead .RowHero {
+    saturation: 0;
+    brightness: 0.5;
+}
+
+/* Seconds until respawn, over a dead hero's portrait. */
+.RespawnTime {
+    horizontal-align: center;
+    vertical-align: center;
+    font-size: 18px;
+    font-weight: bold;
+    color: #ff6b5f;
+    text-shadow: 0px 1px 4px #000000;
+}
+
+.RowNames {
+    width: fill-parent-flow(1);
+    flow-children: down;
+    vertical-align: center;
+}
+
+.RowPlayer {
+    width: 100%;
+    font-size: 14px;
+    font-weight: bold;
+    color: #e8edf3;
+    text-overflow: ellipsis;
+}
+
+.ScoreRow.LocalPlayer .RowPlayer {
+    color: #ffd76a;
+}
+
+.RowHeroName {
+    width: 100%;
+    font-size: 11px;
+    color: #8a96a8;
+    text-transform: uppercase;
+    text-overflow: ellipsis;
+}
+
+.RowStat {
+    width: 100%;
+    vertical-align: center;
+    text-align: center;
+    font-size: 14px;
+    color: #dfe5ec;
+}
+
+.Stacked .RowStat {
+    vertical-align: top;
+    margin-top: 3px;
+}
+
+.RowStat.Gold {
+    color: #ffd76a;
+}
+
+.RowStat.Ready {
+    color: #6fd25f;
+}
+
+/* Buyback availability, allies only: green when ready. */
+.Buyback {
+    horizontal-align: center;
+    font-size: 10px;
+    font-weight: bold;
+    color: #e2593f;
+}
+
+.Buyback.Available {
+    color: #6fd25f;
+}
+
+.Buyback.Hidden {
+    visibility: collapse;
+}
+
+.Aghs {
+    flow-children: right;
+}
+
+/* Scepter and Shard: faint when missing, full when owned. */
+.AghsIcon {
+    width: 22px;
+    height: 16px;
+    vertical-align: center;
+    margin-right: 3px;
+    opacity: 0.18;
+    saturation: 0;
+}
+
+.AghsIcon.Owned {
+    opacity: 1;
+    saturation: 1;
+}
+
+.RowAbilities {
+    vertical-align: center;
+}
+
+.RowAbility {
+    width: 40px;
+    height: 40px;
+    margin-right: 4px;
+    border-radius: 3px;
+    border: 1px solid #ffffff26;
+}
+
+.RowAbility.Ultimate {
+    border: 1px solid #e0b553;
+}
+
+.MuteButton {
+    width: 64px;
+    height: 28px;
+    margin-left: 8px;
+    vertical-align: center;
+    border-radius: 4px;
+    background-color: #ffffff12;
+    border: 1px solid #ffffff26;
+}
+
+.MuteButton:hover {
+    background-color: #ffffff26;
+}
+
+.MuteButton Label {
+    horizontal-align: center;
+    vertical-align: center;
+    font-size: 12px;
+    color: #dfe5ec;
+}
+
+.MuteButton.Muted {
+    background-color: #c8452f66;
+    border: 1px solid #e2593f;
+}

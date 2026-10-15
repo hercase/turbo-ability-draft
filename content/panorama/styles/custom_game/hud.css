@@ -3,61 +3,301 @@
     height: 100%;
 }
 
-#ExamplePanel {
-    width: 500px;
-    height: 500px;
-    /* Using a background image already in dota */
-    background-image: url("s2r://panorama/images/loadingscreens/international_2023_ls_3/loadingscreen.vtex");
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: cover;
+/* Icon button after Dota's top-left buttons (upload, settings, menu), in the same plain style. */
+#ReorderHint {
+    width: 36px;
+    height: 36px;
+    margin: 10px 0px 0px 164px;
+    border-radius: 4px;
+    transition-property: background-color;
+    transition-duration: 0.15s;
+}
 
-    border-style: solid;
-    border-width: 3px;
-    border-color: rgb(0, 0, 0);
+#ReorderHint:hover {
+    background-color: #ffffff1a;
+}
 
+#ReorderHintIcon {
     horizontal-align: center;
     vertical-align: center;
+    font-size: 26px;
+    font-weight: bold;
+    color: #b4bfcc;
 }
 
-#ExamplePanel #BannerImage {
-    width: 200px;
-    height: 200px;
-    horizontal-align: center;
-    y: 40px;
+#ReorderHint:hover #ReorderHintIcon,
+.ReorderMode #ReorderHintIcon {
+    color: #ffffff;
 }
 
-#ExamplePanel .ExampleTitle {
-    horizontal-align: center;
-    font-size: 30px;
-    y: 260px;
-}
-
-#ExamplePanel .ExampleParagraph {
-    y: 320px;
-    margin-left: 30px;
-    margin-right: 30px;
-}
-
-#ExamplePanel #CloseButton {
-    width: 100px;
-    height: 50px;
-    background-color: rgb(228, 228, 228);
+/* Reorder panel, shown while the mode is on. Neutral colors: gold only marks the selection. */
+#ReorderPanel {
     horizontal-align: center;
     vertical-align: bottom;
-    y: -30px;
+    margin-bottom: 210px;
+    flow-children: down;
+    padding: 12px 18px 14px 18px;
+    border-radius: 8px;
+    background-color: #0b0f15f2;
+    border: 1px solid #ffffff2e;
+    visibility: collapse;
 }
 
-#ExamplePanel #CloseButton Label {
+.ReorderMode #ReorderPanel {
+    visibility: visible;
+}
+
+#ReorderTitle {
+    horizontal-align: center;
+    font-size: 14px;
+    font-weight: bold;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #e8edf3;
+}
+
+#ReorderHelp {
+    horizontal-align: center;
+    margin-top: 2px;
+    font-size: 12px;
+    color: #8f9bab;
+}
+
+#ReorderSlots {
+    horizontal-align: center;
+    margin-top: 12px;
+    flow-children: right;
+}
+
+.ReorderSlot {
+    width: 96px;
+    flow-children: down;
+    margin: 0px 4px;
+}
+
+.ReorderKey {
+    horizontal-align: center;
+    font-size: 14px;
+    font-weight: bold;
+    color: #c9d3df;
+}
+
+/* Clickable frame around the ability image; styles go here, not on Dota's image. */
+.ReorderFrame {
+    horizontal-align: center;
+    margin-top: 4px;
+    padding: 2px;
+    border-radius: 5px;
+    border: 2px solid #ffffff1a;
+    transition-property: border, background-color;
+    transition-duration: 0.12s;
+}
+
+.ReorderFrame:hover {
+    border: 2px solid #ffffff66;
+}
+
+.ReorderName {
+    width: 100%;
+    margin-top: 4px;
+    text-align: center;
+    text-overflow: ellipsis;
+    font-size: 11px;
+    color: #aeb9c7;
+}
+
+/* Drag and drop: the picked-up slot fades, the slot under the cursor lights up. */
+.ReorderFrame.Dragging {
+    opacity: 0.35;
+}
+
+.ReorderFrame.DropTarget {
+    border: 2px solid #ffffff;
+    background-color: #ffffff26;
+}
+
+.ReorderDragGhost {
+    width: 60px;
+    height: 60px;
+    opacity: 0.9;
+}
+
+.ReorderAbility {
+    width: 60px;
+    height: 60px;
+}
+
+/* Moved in the preview but not applied yet: gold key and frame. */
+.ReorderSlot.Changed .ReorderKey {
+    color: #c9a24a;
+}
+
+.ReorderSlot.Changed .ReorderFrame {
+    border: 2px solid #c9a24a;
+}
+
+#ReorderButtons {
+    horizontal-align: center;
+    margin-top: 14px;
+    flow-children: right;
+}
+
+.ReorderButton {
+    min-width: 84px;
+    height: 32px;
+    margin: 0px 5px;
+    border-radius: 4px;
+    background-color: #ffffff12;
+    border: 1px solid #ffffff2e;
+}
+
+.ReorderButton:hover {
+    background-color: #ffffff24;
+}
+
+.ReorderButton Label {
     horizontal-align: center;
     vertical-align: center;
-    color: black;
+    font-size: 13px;
+    font-weight: bold;
+    text-transform: uppercase;
+    color: #dfe5ec;
 }
 
-#ExamplePanel #CloseButton:hover {
-    background-color: rgb(0, 135, 245);
+/* Apply and Reset stay muted until something changed. */
+.ReorderButton.Primary,
+#ReorderReset {
+    opacity: 0.45;
 }
 
-#ExamplePanel #CloseButton:hover Label {
-    color: white;
+.ReorderChanged #ReorderReset {
+    opacity: 1;
+}
+
+.ReorderChanged .ReorderButton.Primary {
+    opacity: 1;
+    background-color: #c9a24a40;
+    border: 1px solid #c9a24a;
+}
+
+/* Invisible hover area over Dota's Aghanim's indicator (positioned from the script). */
+#AghsOverlay {
+    width: 100%;
+    height: 100%;
+}
+
+.AghsHover {
+    background-color: #00000001;
+}
+
+/* Aghanim's tooltip: Dota's layout (one section per item; each ability with icon, tag and description)
+   in the draft screen's look: navy card, gold frame and titles. Positioned from the script. */
+#AghsTooltip {
+    width: 380px;
+    /* Anchored by its bottom edge, just above the indicator (offset set from the script). */
+    vertical-align: bottom;
+    flow-children: down;
+    padding: 4px 0px;
+    border-radius: 6px;
+    background-color: gradient(linear, 0% 0%, 0% 100%, from(#1e2733fa), to(#10151cfa));
+    border: 1px solid #c9a24a80;
+    visibility: collapse;
+}
+
+#AghsTooltip.Visible {
+    visibility: visible;
+}
+
+.AghsSection {
+    width: 100%;
+    flow-children: down;
+    padding-bottom: 10px;
+}
+
+.AghsSection.Shard {
+    border-top: 1px solid #ffffff17;
+}
+
+.AghsHeader {
+    width: 100%;
+    flow-children: right;
+    padding: 8px 12px 2px 12px;
+}
+
+.AghsItemIcon {
+    width: 30px;
+    height: 22px;
+    vertical-align: center;
+    margin-right: 8px;
+}
+
+.AghsTitle {
+    vertical-align: center;
+    font-size: 13px;
+    font-weight: bold;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #c9a24a;
+}
+
+.AghsNone {
+    margin: 6px 12px 0px 50px;
+    font-size: 13px;
+    color: #8f9bab;
+}
+
+.AghsEntry {
+    width: 100%;
+    flow-children: right;
+    margin: 10px 12px 0px 12px;
+}
+
+.AghsIconFrame {
+    padding: 2px;
+    border: 2px solid #c9a24a;
+}
+
+.AghsIcon {
+    width: 42px;
+    height: 42px;
+}
+
+.AghsText {
+    width: fill-parent-flow(1);
+    flow-children: down;
+    margin: 0px 24px 0px 10px;
+}
+
+.AghsName {
+    font-size: 15px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #f2f5f9;
+}
+
+/* Upgrade: gold; New ability: teal. */
+.AghsTag {
+    margin-top: 3px;
+    padding: 1px 6px;
+    border: 1px solid #c9a24a;
+    background-color: #c9a24a26;
+    font-size: 10px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #ffd76a;
+}
+
+.AghsTag.New {
+    border: 1px solid #4fc3b0;
+    background-color: #4fc3b026;
+    color: #8ff0de;
+}
+
+.AghsDescription {
+    width: 100%;
+    margin-top: 5px;
+    font-size: 13px;
+    color: #c4ccd6;
 }

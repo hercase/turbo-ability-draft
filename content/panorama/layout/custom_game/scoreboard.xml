@@ -1,0 +1,30 @@
+<root>
+    <scripts>
+        <include src="file://{resources}/scripts/custom_game/scoreboard.js" />
+    </scripts>
+
+    <styles>
+        <include src="s2r://panorama/styles/dotastyles.css" />
+        <include src="file://{resources}/styles/custom_game/scoreboard.css" />
+    </styles>
+
+    <!-- Replaces Dota's scoreboard (same key): its key stats plus every player's drafted build. -->
+    <Panel class="ScoreboardRoot" hittest="false">
+        <Panel id="Scoreboard" hittest="true">
+            <Panel class="ScoreboardTeam Radiant">
+                <Panel class="TeamHeader">
+                    <Label class="TeamTitle" text="#DOTA_GoodGuys" />
+                    <Label id="RadiantKills" class="TeamKills" />
+                </Panel>
+                <Panel id="RadiantRows" class="TeamRows" />
+            </Panel>
+            <Panel class="ScoreboardTeam Dire">
+                <Panel class="TeamHeader">
+                    <Label class="TeamTitle" text="#DOTA_BadGuys" />
+                    <Label id="DireKills" class="TeamKills" />
+                </Panel>
+                <Panel id="DireRows" class="TeamRows" />
+            </Panel>
+        </Panel>
+    </Panel>
+</root>
