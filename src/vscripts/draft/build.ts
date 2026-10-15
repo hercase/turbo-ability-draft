@@ -30,9 +30,11 @@ function getDraftExtraAbilities(ability: string): string[] {
 /**
  * Hidden, non-learnable abilities in a hero's own kit that its draftable abilities rely on (Astral
  * Spirit's move and return, for example). Valve's data does not link them to the main ability, so
- * every such helper of a source hero is added; unused ones stay hidden.
+ * every hidden helper of a source hero is added (unused ones stay hidden). A visible helper (Phoenix's
+ * Toggle Movement) would show up as a dead button, so it is added only with the drafted ability its
+ * name extends (phoenix_sun_ray -> phoenix_sun_ray_toggle_move).
  */
-function getHiddenSubAbilities(sourceHero: string): string[] {
+function getHiddenSubAbilities(sourceHero: string, drafted: string[]): string[] {
     if (config.abilities.noHiddenHelpers[sourceHero] !== undefined) return [];
     const heroKv = GetUnitKeyValuesByName(sourceHero) as Record<string, unknown> | undefined;
     if (heroKv === undefined) return [];
@@ -54,7 +56,12 @@ function getHiddenSubAbilities(sourceHero: string): string[] {
         if (kv === undefined) continue;
         if (isGrantedByItem(name)) continue;
         const behavior = tostring(kv["AbilityBehavior"]);
-        if (behavior.includes("NOT_LEARNABLE") || behavior.includes("BEHAVIOR_HIDDEN")) helpers.push(name);
+        if (behavior.includes("BEHAVIOR_HIDDEN")) helpers.push(name);
+        else if (behavior.includes("NOT_LEARNABLE") && drafted.some(ability => name.startsWith(`${ability}_`))) {
+            helpers.push(name);
+        } else if (behavior.includes("NOT_LEARNABLE")) {
+            print(`[build] skipped visible helper ${name}: no drafted ability it extends`);
+        }
     }
     return helpers;
 }
@@ -122,7 +129,8 @@ export function applyDraftedAbilities(
         const source = getAbilityHero(entry);
         if (source !== undefined) sourceHeroes.add(source);
     }
-    for (const source of sourceHeroes) secondary.push(...getHiddenSubAbilities(source));
+    const drafted = entries.flatMap(entry => splitDraftEntry(entry));
+    for (const source of sourceHeroes) secondary.push(...getHiddenSubAbilities(source, drafted));
 
     // Only slots 0-5 have hotkeys (Q, W, E, D, F, R). AddAbility fills the first free slot, so the
     // secondary abilities take the free D/F slots first, placeholders plug any gap left before R, and
