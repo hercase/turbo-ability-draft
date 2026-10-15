@@ -22,6 +22,8 @@
         <!-- Over Dota's Aghanim's indicator: our tooltip lists the drafted abilities it upgrades. -->
         <Panel id="AghsOverlay" hittest="false" />
         <Panel id="AghsTooltip" hittest="false" />
+        <!-- The tooltip's pointer, drawn after it so it covers the bottom border. -->
+        <Panel id="AghsTooltipArrow" hittest="false" />
 
         <!-- Reorder mode: drag abilities onto each other in a preview; nothing changes until "Apply". -->
         <Panel id="ReorderPanel" hittest="true">

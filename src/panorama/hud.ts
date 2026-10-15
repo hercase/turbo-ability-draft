@@ -238,6 +238,11 @@
     }
 
     const aghsTooltip = $("#AghsTooltip");
+    const aghsTooltipArrow = $("#AghsTooltipArrow");
+    // Must match #AghsTooltip / #AghsTooltipArrow in hud.css.
+    const aghsTooltipWidth = 400;
+    const aghsArrowSize = 14;
+    const aghsTooltipGap = 10;
 
     /**
      * Localized ability text with its %value% placeholders filled from the hero's own ability, like
@@ -333,11 +338,18 @@
         const position = layoutPosition(anchor);
         const base = layoutPosition(aghsOverlay);
         if (position !== undefined && base !== undefined) {
-            const right = (position.x - base.x + anchor.actuallayoutwidth) / aghsOverlay.actualuiscale_x;
-            aghsTooltip.style.x = `${right - 360}px`;
+            const scaleX = aghsOverlay.actualuiscale_x;
+            const left = (position.x - base.x) / scaleX;
+            const width = anchor.actuallayoutwidth / scaleX;
+            aghsTooltip.style.x = `${left + width - aghsTooltipWidth}px`;
             // Bottom-anchored: move it up from the screen bottom to just above the indicator.
             const overlayHeight = aghsOverlay.actuallayoutheight / aghsOverlay.actualuiscale_y;
-            aghsTooltip.style.y = `${(position.y - base.y) / aghsOverlay.actualuiscale_y - overlayHeight - 8}px`;
+            const top = (position.y - base.y) / aghsOverlay.actualuiscale_y;
+            aghsTooltip.style.y = `${top - overlayHeight - aghsTooltipGap}px`;
+            // Pointer: a rotated square centred on the tooltip's bottom edge, above the indicator.
+            aghsTooltipArrow.style.x = `${left + width / 2 - aghsArrowSize / 2}px`;
+            aghsTooltipArrow.style.y = `${top - aghsTooltipGap - aghsArrowSize / 2}px`;
+            aghsTooltipArrow.AddClass("Visible");
         }
         aghsTooltip.AddClass("Visible");
     }
@@ -364,7 +376,10 @@
                 hover.AddClass("AghsHover");
                 const area = hover;
                 area.SetPanelEvent("onmouseover", () => showAghsTooltip(area));
-                area.SetPanelEvent("onmouseout", () => aghsTooltip.RemoveClass("Visible"));
+                area.SetPanelEvent("onmouseout", () => {
+                    aghsTooltip.RemoveClass("Visible");
+                    aghsTooltipArrow.RemoveClass("Visible");
+                });
             }
             hover.style.x = `${(origin.x - base.x) / aghsOverlay.actualuiscale_x}px`;
             hover.style.y = `${(origin.y - base.y) / aghsOverlay.actualuiscale_y}px`;

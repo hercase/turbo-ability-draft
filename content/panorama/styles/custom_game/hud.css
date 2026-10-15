@@ -218,6 +218,22 @@
     visibility: visible;
 }
 
+/* Pointer under the tooltip, like Dota's: a square turned 45 degrees, with the tooltip's colors and
+   only its two lower edges bordered, so its bottom corner points at the indicator. */
+#AghsTooltipArrow {
+    width: 14px;
+    height: 14px;
+    background-color: #12161b;
+    border-right: 1px solid #3a4250;
+    border-bottom: 1px solid #3a4250;
+    transform: rotateZ(45deg);
+    visibility: collapse;
+}
+
+#AghsTooltipArrow.Visible {
+    visibility: visible;
+}
+
 .AghsSection {
     width: 100%;
     flow-children: down;
