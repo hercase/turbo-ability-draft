@@ -151,77 +151,86 @@ function devAction(playerId: PlayerID, action: string): void {
     }
 }
 
+type DevCommand = { help: string; run: (args: string[]) => void };
+
+declare global {
+    // Dev command handlers, kept in a Lua global so script_reload can swap them: Dota keeps a console
+    // command's first callback across reloads, so each callback only forwards to this table.
+    var tadDevCommands: Record<string, DevCommand> | undefined;
+}
+
+function devCommands(draft: Draft, builder: HeroBuilder): Record<string, DevCommand> {
+    return {
+        // Finish the running draft now, with random picks for what is missing.
+        tad_skip_draft: {
+            help: "Tools only: finish the draft now with random picks",
+            run: () => draft.skipToEnd(),
+        },
+        tad_build: {
+            help: "Tools only: tad_build npc_dota_hero_<name> <ability> <ability> <ability> <ultimate>",
+            run: args => buildCommand(draft, builder, args),
+        },
+        // Apply your build again (after script_reload, for example).
+        tad_rebuild: {
+            help: "Tools only: rebuild your hero from its draft",
+            run: () => {
+                const hero = commandHero();
+                if (hero === undefined) return;
+                builder.forget(hero.GetPlayerOwnerID());
+                builder.onHeroSpawned(hero);
+            },
+        },
+        tad_test_abilities: {
+            help: "Tools only: try every Ability Draft ability on a test unit and log the ones that fail",
+            run: () => testAbilitiesCommand(),
+        },
+        // tad_hero npc_dota_hero_invoker: replace your hero with another one, with its own abilities.
+        tad_hero: {
+            help: "Tools only: replace your hero, e.g. tad_hero npc_dota_hero_invoker",
+            run: ([heroName]) => {
+                const hero = commandHero();
+                if (hero === undefined || heroName === undefined) return;
+                PrecacheUnitByNameAsync(heroName, () => {
+                    const playerId = hero.GetPlayerOwnerID();
+                    const replaced = PlayerResource.ReplaceHeroWith(playerId, heroName, hero.GetGold(), 0);
+                    if (replaced !== undefined) UTIL_Remove(hero);
+                    else print(`[dev] tad_hero: could not replace your hero with ${heroName}.`);
+                });
+            },
+        },
+        // tad_ability earthshaker_fissure: add an ability (level 1) to your hero.
+        tad_ability: {
+            help: "Tools only: add an ability to your hero, e.g. tad_ability earthshaker_fissure",
+            run: ([abilityName]) => {
+                const hero = commandHero();
+                if (hero === undefined || abilityName === undefined) return;
+                if (hero.HasAbility(abilityName)) return;
+                const ability = hero.AddAbility(abilityName);
+                if (ability === undefined) print(`[dev] tad_ability: unknown ability ${abilityName}.`);
+                else ability.SetLevel(1);
+            },
+        },
+    };
+}
+
+/** Registers the dev tools. Call at startup and again on script_reload, to pick up the new code. */
 export function registerDevCommands(draft: Draft, builder: HeroBuilder): void {
     if (!IsInToolsMode()) return;
 
+    const firstLoad = tadDevCommands === undefined;
+    tadDevCommands = devCommands(draft, builder);
+    if (!firstLoad) return;
+
     // "Skip draft" button on the draft screen, and the dev panel buttons in the HUD.
-    CustomGameEventManager.RegisterListener("dev_skip_draft", () => draft.skipToEnd());
+    CustomGameEventManager.RegisterListener("dev_skip_draft", () => tadDevCommands?.tad_skip_draft.run([]));
     CustomGameEventManager.RegisterListener("dev_action", (_, event) => devAction(event.PlayerID, event.action));
 
-    // tad_skip_draft: finish the running draft now, with random picks for what is missing.
-    Convars.RegisterCommand(
-        "tad_skip_draft",
-        () => draft.skipToEnd(),
-        "Tools only: finish the draft now with random picks",
-        ConVarFlags.NONE,
-    );
-
-    Convars.RegisterCommand(
-        "tad_build",
-        (_, ...args) => buildCommand(draft, builder, args),
-        "Tools only: tad_build npc_dota_hero_<name> <ability> <ability> <ability> <ultimate>",
-        ConVarFlags.NONE,
-    );
-
-    // tad_rebuild: apply your build again (after script_reload, for example).
-    Convars.RegisterCommand(
-        "tad_rebuild",
-        () => {
-            const hero = commandHero();
-            if (hero === undefined) return;
-            builder.forget(hero.GetPlayerOwnerID());
-            builder.onHeroSpawned(hero);
-        },
-        "Tools only: rebuild your hero from its draft",
-        ConVarFlags.NONE,
-    );
-
-    Convars.RegisterCommand(
-        "tad_test_abilities",
-        () => testAbilitiesCommand(),
-        "Tools only: try every Ability Draft ability on a test unit and log the ones that fail",
-        ConVarFlags.NONE,
-    );
-
-    // tad_hero npc_dota_hero_invoker: replace your hero with another one, with its own abilities.
-    Convars.RegisterCommand(
-        "tad_hero",
-        (_, heroName) => {
-            const hero = commandHero();
-            if (hero === undefined || heroName === undefined) return;
-            PrecacheUnitByNameAsync(heroName, () => {
-                const playerId = hero.GetPlayerOwnerID();
-                const replaced = PlayerResource.ReplaceHeroWith(playerId, heroName, hero.GetGold(), 0);
-                if (replaced !== undefined) UTIL_Remove(hero);
-                else print(`[dev] tad_hero: could not replace your hero with ${heroName}.`);
-            });
-        },
-        "Tools only: replace your hero, e.g. tad_hero npc_dota_hero_invoker",
-        ConVarFlags.NONE,
-    );
-
-    // tad_ability earthshaker_fissure: add an ability (level 1) to your hero.
-    Convars.RegisterCommand(
-        "tad_ability",
-        (_, abilityName) => {
-            const hero = commandHero();
-            if (hero === undefined || abilityName === undefined) return;
-            if (hero.HasAbility(abilityName)) return;
-            const ability = hero.AddAbility(abilityName);
-            if (ability === undefined) print(`[dev] tad_ability: unknown ability ${abilityName}.`);
-            else ability.SetLevel(1);
-        },
-        "Tools only: add an ability to your hero, e.g. tad_ability earthshaker_fissure",
-        ConVarFlags.NONE,
-    );
+    for (const [name, command] of Object.entries(tadDevCommands)) {
+        Convars.RegisterCommand(
+            name,
+            (_, ...args) => tadDevCommands?.[name]?.run(args),
+            command.help,
+            ConVarFlags.NONE,
+        );
+    }
 }

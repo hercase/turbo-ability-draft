@@ -132,6 +132,7 @@ export class GameMode {
     public Reload() {
         print("Script reloaded!");
 
-        // Do some stuff here
+        // Console commands keep their first callback, so point them at the reloaded code.
+        registerDevCommands(this.draft, this.heroBuilder);
     }
 }
