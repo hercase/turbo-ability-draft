@@ -812,3 +812,71 @@
     font-size: 12px;
     color: #ffffff;
 }
+
+/* Teammates' requests (Alt/Ctrl+click): a feed at the bottom left of the board. */
+#DraftRequests {
+    horizontal-align: left;
+    vertical-align: bottom;
+    margin: 0px 0px 70px 300px;
+    flow-children: down;
+}
+
+.RequestItem {
+    flow-children: right;
+    margin-top: 4px;
+    padding: 4px 10px 4px 4px;
+    border-radius: 4px;
+    background-color: #0b0f15e6;
+    border: 1px solid #ffffff26;
+    animation-name: RequestIn;
+    animation-duration: 0.25s;
+}
+
+@keyframes RequestIn {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+.RequestColor {
+    width: 4px;
+    height: 28px;
+    margin-right: 6px;
+}
+
+.RequestIcon {
+    width: 28px;
+    height: 28px;
+    margin-right: 8px;
+}
+
+.RequestText {
+    vertical-align: center;
+    font-size: 14px;
+    color: #e8edf3;
+}
+
+/* Requesters' colors on a board entry, top right. */
+.RequestDots {
+    horizontal-align: right;
+    vertical-align: top;
+    margin: 3px 3px 0px 0px;
+    flow-children: left;
+}
+
+.RequestDot {
+    width: 9px;
+    height: 9px;
+    margin-left: 2px;
+    border-radius: 50%;
+    border: 1px solid #000000;
+}
+
+#DraftRequestHint {
+    horizontal-align: center;
+    font-size: 12px;
+    color: #8f9bab;
+}

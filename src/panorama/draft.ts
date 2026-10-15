@@ -158,6 +158,67 @@
         }
     }
 
+    /**
+     * Click on the board, like the official draft: Alt+click tells your team you want it, Ctrl+click
+     * suggests it to them, a plain click picks it (on your turn).
+     */
+    function onBoardClick(kind: DraftPickKind, name: string): void {
+        if (GameUI.IsAltDown() || GameUI.IsControlDown()) {
+            const suggest = !GameUI.IsAltDown();
+            GameEvents.SendCustomGameEventToServer("draft_request", { kind, name, suggest });
+            return;
+        }
+        sendPick(kind, name);
+    }
+
+    // Teammates' requests: a short feed, and a dot in each requester's color on the board entry.
+    const requestFeed = $("#DraftRequests");
+    const requestedBy = new Map<string, Set<PlayerID>>();
+    const requestLifetimeSeconds = 8;
+
+    function entryLabel(kind: DraftPickKind, name: string): string {
+        return $.Localize(kind === "hero" ? `#${name}` : `#DOTA_Tooltip_ability_${cardAbility(name)}`);
+    }
+
+    function showRequest(data: NetworkedData<DraftRequestBroadcastData>): void {
+        const playerId = data.player as PlayerID;
+        const kind = data.kind as DraftPickKind;
+
+        const item = createPanel("Panel", requestFeed, "RequestItem");
+        createPanel("Panel", item, "RequestColor").style.backgroundColor = playerColor(playerId);
+        if (kind === "hero") createHeroImage(item, data.name, "RequestIcon", "icon");
+        else createAbilityImage(item, data.name, "RequestIcon");
+        const text = createPanel("Label", item, "RequestText") as LabelPanel;
+        text.SetDialogVariable("player", Players.GetPlayerName(playerId));
+        text.SetDialogVariable("pick", entryLabel(kind, data.name));
+        text.text = $.Localize(data.suggest ? "#draft_request_suggest" : "#draft_request_want", text);
+        $.Schedule(requestLifetimeSeconds, () => {
+            if (item.IsValid()) item.DeleteAsync(0);
+        });
+
+        // Dot on the board entry until it is taken.
+        const requesters = requestedBy.get(data.name) ?? new Set<PlayerID>();
+        requesters.add(playerId);
+        requestedBy.set(data.name, requesters);
+        updateRequestDots(data.name);
+    }
+
+    function updateRequestDots(name: string): void {
+        const entry = boardEntries.get(name);
+        if (entry === undefined) return;
+        let dots = entry.frame.FindChildTraverse("RequestDots");
+        if (dots === null) {
+            dots = $.CreatePanel("Panel", entry.frame, "RequestDots");
+            dots.AddClass("RequestDots");
+        }
+        dots.RemoveAndDeleteChildren();
+        for (const playerId of requestedBy.get(name) ?? []) {
+            createPanel("Panel", dots, "RequestDot").style.backgroundColor = playerColor(playerId);
+        }
+    }
+
+    GameEvents.Subscribe("draft_request_broadcast", data => showRequest(data));
+
     function sendPick(kind: DraftPickKind, name: string): void {
         GameEvents.SendCustomGameEventToServer("draft_pick", { kind, name });
     }
@@ -207,7 +268,7 @@
         createAbilityImage(frame, ability.name, "BoardAbility");
         const bar = createPanel("Panel", frame, "PickerBar");
         createUpgradeBadges(frame, ability);
-        frame.SetPanelEvent("onactivate", () => sendPick("ability", ability.name));
+        frame.SetPanelEvent("onactivate", () => onBoardClick("ability", ability.name));
         showAbilityTooltip(frame, ability.name);
         boardEntries.set(ability.name, { frame, bar, kind: "ability", ultimate, hero: ability.hero });
         return frame;
@@ -250,7 +311,7 @@
             const heroFrame = createPanel("Panel", group, "HeroFrame");
             createHeroImage(heroFrame, hero, "HeroPortrait");
             const heroBar = createPanel("Panel", heroFrame, "PickerBar");
-            heroFrame.SetPanelEvent("onactivate", () => sendPick("hero", hero));
+            heroFrame.SetPanelEvent("onactivate", () => onBoardClick("hero", hero));
             // Taken heroes show who took them as a body; their abilities stay on the board.
             const heroTag = createPanel("Label", heroFrame, "TakenTag") as LabelPanel;
             boardEntries.set(hero, {
@@ -285,6 +346,7 @@
         for (const [name, entry] of boardEntries) {
             const picker = taken.get(name);
             const isTaken = picker !== undefined;
+            if (isTaken && requestedBy.delete(name)) updateRequestDots(name);
             entry.frame.SetHasClass("Taken", isTaken);
             const pickable = !isTaken && canLocalPlayerPick(entry.kind, entry.ultimate, entry.hero);
             entry.frame.SetHasClass("Pickable", pickable);

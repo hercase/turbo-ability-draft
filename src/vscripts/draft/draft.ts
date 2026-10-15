@@ -7,6 +7,8 @@ interface DraftPick {
 }
 
 const draftTeams = [DotaTeam.GOODGUYS, DotaTeam.BADGUYS];
+// Minimum time between two pings from the same player (anti-spam, not a game rule).
+const requestCooldownSeconds = 1;
 
 /** Total picks per player: the base hero plus every ability slot. */
 export function getDraftRounds(): number {
@@ -45,6 +47,39 @@ export class Draft {
     constructor(private readonly onFinished: (this: void) => void) {
         CustomGameEventManager.RegisterListener("draft_pick", (_, event) => {
             this.tryPick(event.PlayerID, { kind: event.kind, name: event.name });
+        });
+        CustomGameEventManager.RegisterListener("draft_request", (_, event) => {
+            // Booleans from Panorama arrive as 0 | 1.
+            this.forwardRequest(event.PlayerID, event.kind, event.name, event.suggest === 1);
+        });
+    }
+
+    /** Last time each player sent a request, to keep pings from flooding the team. */
+    private readonly lastRequest = new Map<PlayerID, number>();
+
+    /**
+     * Alt+click (want) or Ctrl+click (suggest) on the board, like the official draft's pings: forwarded
+     * to the player's team only, if the entry is on the board and still free.
+     */
+    private forwardRequest(playerId: PlayerID, kind: DraftPickKind, name: string, suggest: boolean): void {
+        const data = this.players.get(playerId);
+        if (data === undefined || this.state.phase === "waiting" || this.state.phase === "done") return;
+        const now = GameRules.GetGameTime();
+        if (now - (this.lastRequest.get(playerId) ?? -10) < requestCooldownSeconds) return;
+
+        const onBoard =
+            kind === "hero" ? this.pool.heroes.includes(name) : this.pool.abilities.some(entry => entry.name === name);
+        const taken = [...this.players.values()].some(
+            other => other.hero === name || other.ultimate === name || other.abilities.includes(name),
+        );
+        if (!onBoard || taken) return;
+
+        this.lastRequest.set(playerId, now);
+        CustomGameEventManager.Send_ServerToTeam(data.team, "draft_request_broadcast", {
+            player: playerId,
+            kind,
+            name,
+            suggest,
         });
     }
 
