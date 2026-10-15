@@ -202,17 +202,15 @@
     background-color: #00000001;
 }
 
-/* Aghanim's tooltip: Dota's layout (one section per item; each ability with icon, tag and description)
-   in the draft screen's look: navy card, gold frame and titles. Positioned from the script. */
+/* Aghanim's tooltip, matching Dota's own item tooltip: dark slate, square corners, white uppercase
+   titles, blue Upgrade / New ability tags, grey descriptions. Positioned from the script. */
 #AghsTooltip {
-    width: 380px;
+    width: 400px;
     /* Anchored by its bottom edge, just above the indicator (offset set from the script). */
     vertical-align: bottom;
     flow-children: down;
-    padding: 4px 0px;
-    border-radius: 6px;
-    background-color: gradient(linear, 0% 0%, 0% 100%, from(#1e2733fa), to(#10151cfa));
-    border: 1px solid #c9a24a80;
+    background-color: gradient(linear, 0% 0%, 0% 100%, from(#1c2229fa), to(#12161bfa));
+    border: 1px solid #3a4250;
     visibility: collapse;
 }
 
@@ -223,95 +221,88 @@
 .AghsSection {
     width: 100%;
     flow-children: down;
-    padding-bottom: 10px;
+    padding-bottom: 12px;
 }
 
 .AghsSection.Shard {
-    border-top: 1px solid #ffffff17;
+    border-top: 1px solid #2c333c;
 }
 
+/* Item header: icon and title, like the top of Dota's item tooltip. */
 .AghsHeader {
     width: 100%;
     flow-children: right;
-    padding: 8px 12px 2px 12px;
+    padding: 10px 14px 8px 14px;
+    background-color: #0000004d;
 }
 
 .AghsItemIcon {
-    width: 30px;
-    height: 22px;
+    width: 48px;
+    height: 36px;
     vertical-align: center;
-    margin-right: 8px;
+    margin-right: 12px;
 }
 
 .AghsTitle {
     vertical-align: center;
-    font-size: 13px;
+    font-size: 20px;
     font-weight: bold;
-    letter-spacing: 3px;
+    letter-spacing: 1px;
     text-transform: uppercase;
-    color: #c9a24a;
+    color: #e8eef2;
 }
 
 .AghsNone {
-    margin: 6px 12px 0px 50px;
-    font-size: 13px;
+    margin: 10px 14px 0px 14px;
+    font-size: 14px;
     color: #8f9bab;
 }
 
 .AghsEntry {
     width: 100%;
     flow-children: right;
-    margin: 10px 12px 0px 12px;
+    margin: 12px 14px 0px 14px;
 }
 
 .AghsIconFrame {
-    padding: 2px;
-    border: 2px solid #c9a24a;
+    padding: 0px;
 }
 
 .AghsIcon {
-    width: 42px;
-    height: 42px;
+    width: 44px;
+    height: 44px;
 }
 
 .AghsText {
     width: fill-parent-flow(1);
     flow-children: down;
-    margin: 0px 24px 0px 10px;
+    margin: 0px 28px 0px 12px;
 }
 
 .AghsName {
-    font-size: 15px;
+    font-size: 17px;
     font-weight: bold;
-    letter-spacing: 1px;
     text-transform: uppercase;
-    color: #f2f5f9;
+    color: #e8eef2;
 }
 
-/* Upgrade: gold; New ability: teal. */
+/* Dota's blue "UPGRADE" / "NEW ABILITY" pill. */
 .AghsTag {
     margin-top: 3px;
-    padding: 1px 6px;
-    border: 1px solid #c9a24a;
-    background-color: #c9a24a26;
+    padding: 1px 8px;
+    background-color: #2c4f7c;
     font-size: 10px;
     font-weight: bold;
     letter-spacing: 1px;
     text-transform: uppercase;
-    color: #ffd76a;
-}
-
-.AghsTag.New {
-    border: 1px solid #4fc3b0;
-    background-color: #4fc3b026;
-    color: #8ff0de;
+    color: #c2d7f0;
 }
 
 .AghsDescription {
     width: 100%;
-    margin-top: 5px;
-    font-size: 13px;
-    color: #c4ccd6;
+    margin-top: 6px;
+    font-size: 14px;
+    color: #b8c3cf;
 }
 
 /* Tools only: dev panel, a "DEV" button whose buttons open downward. */
