@@ -93,7 +93,8 @@ adds Turbo rules on top; the draft itself is not reinvented.
   - The draft runs during Dota's hero selection, on our own `HeroSelection` screen. Hero selection
     time is set to the longest possible draft plus a margin; Dota's strategy time is the strategy
     phase.
-  - Pool: one random hero per player plus `extraPoolHeroes`, each bringing its official
+  - Pool: one random hero per player plus `extraPoolHeroes` (at least `minPoolHeroes`, 6, so a 1v1
+    or 2v2 board keeps some variety; decided 2026-10-15), each bringing its official
     `AbilityDraftAbilities` minus the blacklist. All pool heroes can be drafted as the base hero
     (unverified against the official mode). Invoker brings 3 random abilities (`randomSubset`).
   - Planning, then `1 + regularAbilities + ultimates` snake rounds; each turn lasts the full pick

@@ -34,6 +34,8 @@ export interface DraftConfig {
     maxAbilitiesPerHero: number | null;
     /** Heroes whose abilities join the pool without being played (official Ability Draft uses 2). */
     extraPoolHeroes: number;
+    /** Smallest board: small lobbies (1v1, 2v2) still get this many heroes, for variety. */
+    minPoolHeroes: number;
     planningSeconds: number;
     pickTimeSeconds: number;
     phaseBreakSeconds: number;

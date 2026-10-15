@@ -114,7 +114,9 @@ export class Draft {
         }
         this.baseOrder = this.buildBaseOrder();
 
-        const heroes = pickRandom(getDraftableHeroes(), this.players.size + config.draft.extraPoolHeroes);
+        // One hero per player plus the official 2 extras, but never fewer than minPoolHeroes (1v1, 2v2).
+        const poolSize = Math.max(this.players.size + config.draft.extraPoolHeroes, config.draft.minPoolHeroes);
+        const heroes = pickRandom(getDraftableHeroes(), poolSize);
         this.pool = buildAbilityPool(heroes);
         // Drafted abilities need their original hero's particles and sounds; load them during the draft.
         for (const hero of heroes) {
