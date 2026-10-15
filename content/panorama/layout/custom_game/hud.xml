@@ -9,15 +9,14 @@
     </styles>
 
     <Panel hittest="false" class="MainHud">
-        <!-- Reorder button next to Dota's own top-left buttons; also opened with F8. -->
-        <Panel id="ReorderHint" hittest="true">
-            <Label id="ReorderHintIcon" text="⇄" />
-        </Panel>
 
-        <!-- Tools only: dev panel with cheat buttons (filled from hud.ts). -->
-        <Panel id="DevPanel" hittest="false">
-            <TextButton id="DevPanelToggle" class="DevButton Toggle" text="DEV" />
-            <Panel id="DevButtons" />
+        <!-- In the row of Dota's top-left buttons: reorder (also F8) and, in tools only, the dev panel. -->
+        <Panel id="TopLeftButtons" hittest="false">
+            <TextButton id="ReorderHint" class="TopButton" text="F8" />
+            <Panel id="DevPanel" hittest="false">
+                <TextButton id="DevPanelToggle" class="TopButton Dev" text="DEV" />
+                <Panel id="DevButtons" />
+            </Panel>
         </Panel>
 
         <!-- Over Dota's Aghanim's indicator: our tooltip lists the drafted abilities it upgrades. -->
