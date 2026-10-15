@@ -118,4 +118,6 @@ export interface DevConfig extends DraftTimings {
     toolsModeTimings: boolean;
     /** Tools only: finish the draft right away with random picks (also: console command tad_skip_draft). */
     instantDraft: boolean;
+    /** Tools only: bots added for solo testing, alternating Radiant and Dire (Dota caps the teams). */
+    bots: number;
 }

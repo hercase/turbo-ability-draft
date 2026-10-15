@@ -83,9 +83,9 @@ export class GameMode {
     public OnStateChange(): void {
         const state = GameRules.State_Get();
 
-        // Add 4 bots to lobby in tools, two per team, so the draft and the match can be tested alone
+        // Tools only: bots for solo testing (dev.bots), alternating teams
         if (IsInToolsMode() && state == GameState.CUSTOM_GAME_SETUP) {
-            for (let i = 0; i < 4; i++) {
+            for (let i = 0; i < config.dev.bots; i++) {
                 Tutorial.AddBot("npc_dota_hero_lina", "", "hard", i % 2 === 0);
             }
         }

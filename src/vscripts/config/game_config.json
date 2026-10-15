@@ -92,6 +92,7 @@
     "dev": {
         "toolsModeTimings": true,
         "instantDraft": false,
+        "bots": 5,
         "planningSeconds": 20,
         "pickTimeSeconds": 7,
         "phaseBreakSeconds": 1,
