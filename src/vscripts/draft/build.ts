@@ -43,6 +43,7 @@ function getHiddenSubAbilities(sourceHero: string, drafted: string[]): string[] 
     for (const entry of getHeroDraftAbilities(sourceHero)) {
         for (const name of splitDraftEntry(entry)) draftable.add(name);
     }
+    const undrafted = [...draftable].filter(name => !drafted.includes(name));
 
     const helpers: string[] = [];
     for (const key of Object.keys(heroKv)) {
@@ -56,6 +57,9 @@ function getHiddenSubAbilities(sourceHero: string, drafted: string[]): string[] 
         if (kv === undefined) continue;
         if (isGrantedByItem(name)) continue;
         const behavior = tostring(kv["AbilityBehavior"]);
+        // Helpers of an ability that was not drafted (phoenix_sun_ray_stop without Sun Ray) would only
+        // take the hotkeyed D/F slots from the ones that are needed (Astral Spirit's move).
+        if (undrafted.some(ability => name.startsWith(`${ability}_`))) continue;
         if (behavior.includes("BEHAVIOR_HIDDEN")) helpers.push(name);
         else if (behavior.includes("NOT_LEARNABLE") && drafted.some(ability => name.startsWith(`${ability}_`))) {
             helpers.push(name);
