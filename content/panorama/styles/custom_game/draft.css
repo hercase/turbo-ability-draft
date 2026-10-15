@@ -319,10 +319,10 @@
     transition-duration: 0.3s;
 }
 
-/* Your turn: the board gets a gold frame and a warm tint, so the eye goes straight to it. */
+/* Your turn: a thin gold frame around a darkened board; a gold tint washed the whole screen yellow. */
 .LocalTurn #DraftBoardFrame {
-    border: 2px solid #ffd76a99;
-    background-color: #ffd76a0d;
+    border: 2px solid #c9a24a80;
+    background-color: #00000059;
 }
 
 /* Board: ultimates block on top, then rows of four hero cards (4 x 270px), centered. */
