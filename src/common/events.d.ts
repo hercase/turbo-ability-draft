@@ -17,6 +17,8 @@ interface CustomGameEventDeclarations {
     draft_pick: DraftPickEventData;
     /** Client -> server, tools only: finish the draft now with random picks ("Skip draft" button). */
     dev_skip_draft: Record<string, never>;
+    /** Client -> server, tools only: a dev panel button ("level6", "gold", "refresh", ...). */
+    dev_action: { action: string };
     /** Client -> server: Alt+click (want) or Ctrl+click (suggest) on the draft board. */
     draft_request: DraftRequestEventData;
     /** Server -> team: a teammate's draft request. */

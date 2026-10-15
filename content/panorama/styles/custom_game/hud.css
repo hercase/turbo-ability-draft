@@ -301,3 +301,45 @@
     font-size: 13px;
     color: #c4ccd6;
 }
+
+/* Tools only: dev panel under the reorder button, collapsed into a "DEV" button. */
+#DevPanel {
+    margin: 52px 0px 0px 164px;
+    flow-children: down;
+}
+
+#DevButtons {
+    flow-children: down;
+    margin-top: 4px;
+    visibility: collapse;
+}
+
+#DevPanel.Open #DevButtons {
+    visibility: visible;
+}
+
+.DevButton {
+    width: 110px;
+    margin-bottom: 3px;
+    padding: 3px 8px;
+    border-radius: 3px;
+    background-color: #0b0f15e6;
+    border: 1px solid #c8452f99;
+}
+
+.DevButton:hover {
+    background-color: #c8452f66;
+}
+
+.DevButton.Toggle {
+    width: 36px;
+    padding: 3px 0px;
+    background-color: #c8452f99;
+}
+
+.DevButton Label {
+    horizontal-align: center;
+    font-size: 12px;
+    font-weight: bold;
+    color: #ffffff;
+}

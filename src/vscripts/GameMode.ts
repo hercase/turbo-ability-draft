@@ -57,7 +57,7 @@ export class GameMode {
         registerAbilityReorder();
         registerShopRules();
         registerGoldTalents();
-        registerDevCommands(this.draft);
+        registerDevCommands(this.draft, this.heroBuilder);
     }
 
     private configure(): void {

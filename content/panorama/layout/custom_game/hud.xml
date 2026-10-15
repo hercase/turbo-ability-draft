@@ -14,6 +14,12 @@
             <Label id="ReorderHintIcon" text="⇄" />
         </Panel>
 
+        <!-- Tools only: dev panel with cheat buttons (filled from hud.ts). -->
+        <Panel id="DevPanel" hittest="false">
+            <TextButton id="DevPanelToggle" class="DevButton Toggle" text="DEV" />
+            <Panel id="DevButtons" />
+        </Panel>
+
         <!-- Over Dota's Aghanim's indicator: our tooltip lists the drafted abilities it upgrades. -->
         <Panel id="AghsOverlay" hittest="false" />
         <Panel id="AghsTooltip" hittest="false" />

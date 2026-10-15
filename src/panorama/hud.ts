@@ -170,6 +170,29 @@
     }
 
     // Registered before the rest of the setup, so an error further down cannot leave F8 dead.
+    // Tools only: dev panel. Each button sends a "dev_action" the server handles in tools only.
+    const devPanel = $("#DevPanel");
+    const devButtons = $("#DevButtons");
+    devPanel.visible = Game.IsInToolsMode();
+    const devActions: [string, string][] = [
+        ["level6", "Level 6"],
+        ["level30", "Level 30"],
+        ["gold", "+5000 gold"],
+        ["refresh", "Refresh"],
+        ["scepter", "Scepter"],
+        ["shard", "Shard"],
+        ["respawn", "Respawn"],
+        ["dummy", "Enemy dummy"],
+    ];
+    devButtons.RemoveAndDeleteChildren();
+    for (const [action, text] of devActions) {
+        const button = $.CreatePanel("TextButton", devButtons, "");
+        button.AddClass("DevButton");
+        button.text = text;
+        button.SetPanelEvent("onactivate", () => GameEvents.SendCustomGameEventToServer("dev_action", { action }));
+    }
+    $("#DevPanelToggle").SetPanelEvent("onactivate", () => devPanel.ToggleClass("Open"));
+
     // Console commands outlive this script: they survive hot reloads and map reloads, and a name can
     // only be registered once. Each load registers its own command and points F8 at it, so F8 always
     // reaches the live script.

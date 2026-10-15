@@ -179,6 +179,11 @@ export class HeroBuilder {
         private readonly getAbilityHero: (this: void, entry: string) => string | undefined,
     ) {}
 
+    /** Tools only (tad_build, tad_rebuild): lets the next onHeroSpawned build this player again. */
+    public forget(playerId: PlayerID): void {
+        this.built.delete(playerId);
+    }
+
     public onHeroSpawned(hero: CDOTA_BaseNPC_Hero): void {
         const playerId = hero.GetPlayerOwnerID();
         if (this.built.has(playerId)) return;

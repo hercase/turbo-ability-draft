@@ -129,9 +129,15 @@ adds Turbo rules on top; the draft itself is not reinvented.
     small icon of its source hero, for the per-hero limit), then one card per pool hero with its
     portrait and standard abilities.
   - Pool heroes are precached during the draft so drafted abilities have their particles and sounds.
-  - In Workshop Tools, a "Skip draft (dev)" button (or `dev.instantDraft`, off by default) finishes the
-    draft with random picks, and the console commands `tad_skip_draft`, `tad_hero <hero>` (swap your hero, with its own kit) and
-    `tad_ability <ability>` (add an ability) help test builds.
+  - Dev tools (Workshop Tools only, `src/vscripts/dev/`):
+    - Draft screen: a "Skip draft (dev)" button (or `dev.instantDraft`, off by default) finishes the
+      draft with random picks.
+    - HUD: a "DEV" panel under the reorder button (level 6 / 30, +5000 gold, refresh, Scepter, Shard,
+      respawn, enemy target dummy).
+    - Console: `tad_skip_draft`, `tad_build <hero> <ability>... <ultimate>` (a chosen build without a
+      draft), `tad_rebuild` (apply the build again after `script_reload`), `tad_test_abilities` (adds
+      every Ability Draft ability and extra to a test unit and logs the ones that fail),
+      `tad_hero <hero>` and `tad_ability <ability>`.
   - In Workshop Tools the `dev` config section shortens the draft and pre-game timings for solo
     testing (`toolsModeTimings: false` restores the official ones).
   - Talents tied to base-hero abilities the player did not draft are replaced, in the same tree slot, by

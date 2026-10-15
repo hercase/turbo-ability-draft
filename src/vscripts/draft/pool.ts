@@ -129,3 +129,17 @@ function entryUpgrades(entry: string): { scepter: boolean; shard: boolean } {
     }
     return result;
 }
+
+/**
+ * The official pool entry that contains an ability, with its hero, searched over every hero (e.g.
+ * "jakiro_liquid_fire" -> "jakiro_liquid_fire,jakiro_liquid_ice"). For abilities outside the current
+ * board (tools commands); undefined if no hero brings it to Ability Draft.
+ */
+export function findDraftEntry(ability: string): { entry: string; hero: string } | undefined {
+    for (const hero of getAllHeroNames()) {
+        for (const entry of getHeroDraftAbilities(hero)) {
+            if (entry === ability || splitDraftEntry(entry).includes(ability)) return { entry, hero };
+        }
+    }
+    return undefined;
+}

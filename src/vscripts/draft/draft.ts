@@ -1,5 +1,5 @@
 import { config, getDraftTimings } from "../config";
-import { buildAbilityPool, DraftPool, getDraftableHeroes, pickRandom } from "./pool";
+import { buildAbilityPool, DraftPool, findDraftEntry, getDraftableHeroes, pickRandom } from "./pool";
 
 interface DraftPick {
     kind: DraftPickKind;
@@ -54,7 +54,13 @@ export class Draft {
 
     /** Pool hero that brought this ability entry to the board. */
     public getAbilityHero(entry: string): string | undefined {
-        return this.pool.abilities.find(ability => ability.name === entry)?.hero;
+        return this.pool.abilities.find(ability => ability.name === entry)?.hero ?? findDraftEntry(entry)?.hero;
+    }
+
+    /** Tools only (tad_build): sets a player's build directly, outside the draft. */
+    public setPlayerBuild(playerId: PlayerID, build: DraftPlayerData): void {
+        this.players.set(playerId, build);
+        this.publishPlayers();
     }
 
     public isFinished(): boolean {
