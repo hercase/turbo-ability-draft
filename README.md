@@ -3,7 +3,7 @@
 A Dota 2 custom game. Each player builds one hero through an ability draft, played under Turbo rules.
 A Mid Only mode (1v1 / 2v2 / 3v3 in the middle lane) is planned.
 
-Addon name: `turbo_ability_draft`. Status: early development, private.
+Addon name: `turbo_ability_draft`. Status: early development.
 
 - Design decisions, open questions and unverified assumptions: [docs/DESIGN.md](docs/DESIGN.md)
 - Rules for contributors and AI agents: [AGENTS.md](AGENTS.md)
